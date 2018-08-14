@@ -31,6 +31,17 @@
             <version>0.2.25</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>25.1-jre</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.koloboke</groupId>
+            <artifactId>koloboke-impl-jdk8</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
     </dependencies>
 

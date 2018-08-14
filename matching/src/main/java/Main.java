@@ -1,59 +1,46 @@
-import helper.ConnectToNeo4j;
-import org.apache.tinkerpop.gremlin.neo4j.structure.Neo4jGraph;
-import org.apache.tinkerpop.gremlin.process.traversal.Operator;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
-import org.apache.tinkerpop.gremlin.structure.T;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
+import analysis.Stats;
+import com.google.common.graph.ImmutableValueGraph;
+import ds.E;
+import ds.G;
+import ds.V;
+import evaluation.Pairwise;
+import helper.IO;
+import logic.MessagePassing;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
-import static org.apache.tinkerpop.gremlin.process.traversal.Operator.assign;
-import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.*;
+import java.io.IOException;
+import java.util.*;
 
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        Neo4jGraph graph = (Neo4jGraph) ConnectToNeo4j.connectToNeo4JGraph(ConnectToNeo4j.Neo4jConnectionType.EMBEDDED);
-        assert graph != null;
-        GraphTraversalSource g = graph.traversal();
+    public static void main(String[] args) throws IOException {
+        G g = new G();
+        g.init(args[0], args[1]);
+        g.initNamesPart();
+        g.initClusters();
+        g.updateAncestorClusterCnt(1);
 
-        List<Object> sources = g.V().hasLabel("REF").limit(1).values("val").toList();
-        List<Object> targets = g.withBulk(false).withSack(1.0f, Operator.sum).V().hasLabel("REF").limit(1)
-                .out("REF_TKN").in("REF_TKN").sack().toList();
+        Pairwise eval = new Pairwise(g);
+        eval.evaluate();
 
-        List<Map<String, Object>> maps = g.V().hasLabel("REF")
-                .has("val", "valeri frolov").as("source")
-                .sack(assign).by(
-                        project("name", "sim")
-                                .by(values("val"))
-                                .by(constant(1.0f))
-                )
-                .out("REF_TKN")
-                .sack(assign).by(
-                        project("name", "sim")
-                                .by(sack().select("name"))
-                                .by(union(sack().select("sim"), constant(2.0f)).sum())
-                )
-                .in("REF_TKN")
-                .sack(assign).map(e -> sack(Operator.div).select("sim").by(constant(2)))
-                .by(
-                        project("name", "sim")
-                                .by(sack().select("name"))
-                                .by()
-                )
-                .as("target")
-                .project("target", "source", "sim")
-                .by(values("val"))
-                .by(sack().select("name"))
-                .by(sack().select("sim"))
-                .toList();
+        MessagePassing mp = new MessagePassing(g);
+        Map<V, List<MessagePassing.Candidate>> candidates = mp.V(V.Type.REFERENCE)
+                .out(E.Type.REF_TKN).in(E.Type.REF_TKN).aggregateTerminal();
 
-        Long cnt = g.V().hasLabel("REF").out("REF_TKN").in("REF_TKN").count().next();
-        System.out.println(cnt);
 
+        // ------ rule-based approach of clustering ---------------------------
+        Map<V, Collection<V>> components = mp.greedyClustering(candidates);
+        g.updateClusters(components);
+
+        // ------ check upper bound of performance in this step ---------------
+        // Collection<ImmutableValueGraph<Long, Double>> componentGraphs = mp.connectedCandidatesGuavaGraphs(candidates);
+        // Map<V, Collection<V>> components = mp.graphsToClusters(componentGraphs);
+        // g.updateClustersToRealClusters(components.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
+        eval.evaluate();
+
+        IO.writeSimilarityGraph(candidates, "matching/out");
+
+        int a = 1;
+        Stats.calcStats(g);
     }
 
 }

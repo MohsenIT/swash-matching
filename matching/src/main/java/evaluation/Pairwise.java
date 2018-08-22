@@ -1,8 +1,8 @@
 package evaluation;
 
-import ds.E;
-import ds.G;
-import ds.V;
+import dao.edge.E;
+import dao.G;
+import dao.vertex.V;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;

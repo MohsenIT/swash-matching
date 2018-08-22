@@ -1,19 +1,20 @@
-package ds;
+package dao.vertex;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.koloboke.collect.map.hash.HashObjObjMaps;
+import dao.edge.TokenE;
 
 import java.util.*;
 
-import static ds.ClusterV.AncestorEquity.ResultType.*;
-import static ds.TokenE.NamePart.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static dao.vertex.ClusterV.AncestorEquity.ResultType.*;
+import static dao.edge.TokenE.NamePart.*;
 import static helper.CollectionHelper.or;
 
 /**
  * Vertex class of cluster representative in the graph.
  */
-public class ClusterV extends V{
+public class ClusterV extends V {
 
     private Map<TokenE.NamePart, Map<V, Boolean>> profileMap;
 
@@ -32,9 +33,9 @@ public class ClusterV extends V{
     }
     //endregion
 
-    public ClusterV(Long id, V refV) {
+    public ClusterV(Long id, RefV refV) {
         super(id, refV.getVal(), Type.CLUSTER, 1L);
-        profileMap = getNamePartsMap(refV);
+        profileMap = refV.getNamePartsMap();
     }
 
     /**
@@ -42,15 +43,15 @@ public class ClusterV extends V{
      * @param refV a <i>REFERENCE</i> vertex
      * @return true if consistent and false if not
      */
-    public Boolean isConsistent(V refV) {
-        Map<TokenE.NamePart, Map<V, Boolean>> namePartsMap = getNamePartsMap(refV);
+    public Boolean isConsistent(RefV refV) {
+        Map<TokenE.NamePart, Map<V, Boolean>> namePartsMap = refV.getNamePartsMap();
         // TODO: 13/08/2018 consider Shift-Left, Shift-Right & Inverse
         // TODO: 13/08/2018 implement first find path and then check name part
 
         // lastname check: equal or hash & not_abbr
         AncestorEquity lnameEq = isEqual(LASTNAME, namePartsMap.getOrDefault(LASTNAME, Collections.emptyMap()).keySet(), Type.TOKEN);
         if(lnameEq.result == IS_NOT_EQUAL)
-            lnameEq = isEqual(LASTNAME, lnameEq.onlyInInput, Type.HASH);
+            lnameEq = isEqual(LASTNAME, lnameEq.onlyInInput, Type.SIMILAR);
         if(lnameEq.result != IS_EQUAL) return false;
 
         // firstname check: equal or hash or abbr but not removed
@@ -58,7 +59,7 @@ public class ClusterV extends V{
         Map<V, Boolean> fnameMap = namePartsMap.getOrDefault(FIRSTNAME, Collections.emptyMap());
         AncestorEquity fnameEq = isEqual(FIRSTNAME, fnameMap.keySet(), Type.TOKEN);
         if(fnameEq.result == IS_NOT_EQUAL)
-            fnameEq = isEqual(FIRSTNAME, fnameEq.onlyInInput, Type.HASH);
+            fnameEq = isEqual(FIRSTNAME, fnameEq.onlyInInput, Type.SIMILAR);
         if(fnameEq.result == IS_NOT_EQUAL && (or(fnameMap.values()) || or(profileMap.getOrDefault(FIRSTNAME, null).values()))) // has abbreviated
             fnameEq = isEqual(FIRSTNAME, fnameEq.onlyInInput, Type.ABBREVIATED);
         if(fnameEq.result != IS_EQUAL) return false;
@@ -68,7 +69,7 @@ public class ClusterV extends V{
         Map<V, Boolean> mnameMap = namePartsMap.getOrDefault(MIDDLENAME, Collections.emptyMap());
         AncestorEquity mnameEq = isEqual(MIDDLENAME, mnameMap.keySet(), Type.TOKEN);
         if(mnameEq.result == IS_NOT_EQUAL)
-            mnameEq = isEqual(MIDDLENAME, mnameEq.onlyInInput, Type.HASH);
+            mnameEq = isEqual(MIDDLENAME, mnameEq.onlyInInput, Type.SIMILAR);
         if(fnameEq.result == IS_NOT_EQUAL && (or(mnameMap.values()) || or(profileMap.getOrDefault(MIDDLENAME, null).values()))) // has abbreviated
             mnameEq = isEqual(MIDDLENAME, mnameEq.onlyInInput, Type.ABBREVIATED);
         if(mnameEq.result == IS_NOT_EQUAL) return false;
@@ -78,7 +79,7 @@ public class ClusterV extends V{
         Map<V, Boolean> suffixMap = namePartsMap.getOrDefault(SUFFIX, Collections.emptyMap());
         AncestorEquity suffixEq = isEqual(SUFFIX, suffixMap.keySet(), Type.TOKEN);
         if(suffixEq.result == IS_NOT_EQUAL)
-            suffixEq = isEqual(SUFFIX, suffixEq.onlyInInput, Type.HASH);
+            suffixEq = isEqual(SUFFIX, suffixEq.onlyInInput, Type.SIMILAR);
         if(fnameEq.result == IS_NOT_EQUAL && (or(suffixMap.values()) || or(profileMap.getOrDefault(SUFFIX, null).values()))) // has abbreviated
             suffixEq = isEqual(SUFFIX, suffixEq.onlyInInput, Type.ABBREVIATED);
         if(suffixEq.result == IS_NOT_EQUAL) return false;
@@ -86,17 +87,6 @@ public class ClusterV extends V{
 
         // TODO: 14/08/2018 update profile if matched
         return true;
-    }
-
-    public static Map<TokenE.NamePart, Map<V, Boolean>> getNamePartsMap(V refV) {
-        assert refV.getType() == Type.REFERENCE : "The parameter should be REFERENCE vertex.";
-        Map<TokenE.NamePart, Map<V, Boolean>> partsMap = HashObjObjMaps.newMutableMap();
-        refV.getOutE(E.Type.REF_TKN).stream().map(e -> (TokenE) e).forEach(e -> {
-            if(partsMap.containsKey(e.getPart()))
-                partsMap.get(e.getPart()).put(e.getOutV(), e.getIsAbbr());
-            else partsMap.put(e.getPart(), HashObjObjMaps.newMutableMap(Collections.singletonMap(e.getOutV(), e.getIsAbbr())));
-        });
-        return partsMap;
     }
 
 
@@ -113,7 +103,7 @@ public class ClusterV extends V{
      */
     private AncestorEquity isEqual(TokenE.NamePart part, Collection<V> inputVs, V.Type vType) {
         int level = vType.getLevel();
-        assert level > 0 : "level is not valid. level should be TOKEN, HASH or ABBREVIATED.";
+        checkArgument(level > 0, "level is not valid. level should be TOKEN, SIMILAR or ABBREVIATED.");
 
         Set<V> vs = V.outVsUntil(inputVs, level);
         Set<V> profileVs = profileMap.containsKey(part) ? V.outVsUntil(profileMap.get(part).keySet(), level) : Collections.EMPTY_SET;

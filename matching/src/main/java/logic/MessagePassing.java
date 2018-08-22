@@ -2,7 +2,13 @@ package logic;
 
 import com.google.common.graph.*;
 import com.koloboke.collect.map.hash.HashObjObjMaps;
-import ds.*;
+import dao.*;
+import dao.edge.E;
+import dao.edge.TokenE;
+import dao.vertex.ClusterV;
+import dao.vertex.ElementV;
+import dao.vertex.RefV;
+import dao.vertex.V;
 import helper.GraphAnalysis;
 
 import java.util.*;
@@ -25,7 +31,7 @@ public class MessagePassing {
     //region Traversal & Message Passing Steps
     public MessagePassing V(Collection<V> sourceVs){
         currentPosition =  HashObjObjMaps.newMutableMap(sourceVs.size());
-        sourceVs.forEach(v -> currentPosition.put(new Message(v, 1.0f), v));
+        sourceVs.forEach(v -> currentPosition.put(new Message((RefV) v, 1.0f), v));
         return this;
     }
 
@@ -33,17 +39,17 @@ public class MessagePassing {
         return this.V(g.getVs().values().stream().filter(e -> e.getType() == type).collect(Collectors.toList()));
     }
 
-
     public MessagePassing out(E.Type type){
         Map<Message, V> nextPosition = HashObjObjMaps.newMutableMap();
         for (Map.Entry<Message, V> entry :currentPosition.entrySet()) {
-            for (V v : (Set<V>) entry.getValue().getOutV(type)) { // foreach out V
+            for (V v : entry.getValue().getOutV(type)) { // foreach out V
+                ElementV elementV = (ElementV)v;
                 Message m = entry.getKey().clone();
                 m.incMaxLevel();
-                m.setSimilarity(m.getSimilarity()/v.getClusterCount());
-                if(v.getType() == V.Type.TOKEN)
-                    m.setFirstToken(v);
-                nextPosition.put(m, v);
+                m.setSimilarity(m.getSimilarity()/elementV.getClusterCount());
+                if(elementV.getType() == V.Type.TOKEN)
+                    m.setFirstToken((ElementV) elementV);
+                nextPosition.put(m, elementV);
             }
         }
         currentPosition = nextPosition;
@@ -56,9 +62,9 @@ public class MessagePassing {
             for (V v : (Set<V>) entry.getValue().getInV(type)) { // foreach out V
                 Message m = entry.getKey().clone();
                 if(v.getType() == V.Type.REFERENCE)
-                    m.setDestRefV(v);
+                    m.setDestRefV((RefV) v);
                 else {
-                    m.setSimilarity(m.getSimilarity()/v.getClusterCount());
+                    m.setSimilarity(m.getSimilarity()/((ElementV)v).getClusterCount());
                 }
                 nextPosition.put(m, v);
             }
@@ -67,30 +73,30 @@ public class MessagePassing {
         return this;
     }
 
-    public Map<V, List<Candidate>> aggregateTerminal() {
-        Map<V, Map<V, List<Message>>> result = currentPosition.keySet().stream()
+    public Map<V, List<Candidate>> aggRefVsTerminal() {
+        Map<RefV, Map<RefV, List<Message>>> result = currentPosition.keySet().stream()
                 .collect(Collectors.groupingBy(Message::getDestRefV,
                         Collectors.groupingBy(Message::getOriginRefV)));
 
         Map<V, List<Candidate>> strongMap = HashObjObjMaps.newMutableMap();
-        for (Map.Entry<V, Map<V, List<Message>>> dst: result.entrySet()) {
+        for (Map.Entry<RefV, Map<RefV, List<Message>>> dst: result.entrySet()) {
             Double simThreshold = getSimilarityThreshold(dst);
             List<Candidate> candidateList = new ArrayList<>();
 
-            for (Map.Entry<V, List<Message>> org: dst.getValue().entrySet()) {
+            for (Map.Entry<RefV, List<Message>> org: dst.getValue().entrySet()) {
                 Candidate can = new Candidate(dst.getKey(), org.getKey(), org.getValue());
                 if(can.sumSimilarity >= simThreshold && can.messageList.size() >= Candidate.MIN_COMMON_TOKENS_THRESHOLD)
                     candidateList.add(can);
             }
             if(candidateList.size() > 1)
-                strongMap.put(dst.getKey(), candidateList.stream()
+                strongMap.put((RefV)dst.getKey(), candidateList.stream()
                         .sorted(Comparator.comparing(Candidate::getSumSimilarity, Comparator.reverseOrder()))
                         .collect(Collectors.toList()));
         }
         return strongMap;
     }
 
-    private Double getSimilarityThreshold(Map.Entry<V, Map<V, List<Message>>> messagesReceivedToRefV) {
+    private Double getSimilarityThreshold(Map.Entry<RefV, Map<RefV, List<Message>>> messagesReceivedToRefV) {
         Double selfSim = messagesReceivedToRefV.getValue().get(messagesReceivedToRefV.getKey())
                 .stream().mapToDouble(Message::getSimilarity).sum();
         return Candidate.SIM_PROPORTION_THRESHOLD * selfSim;
@@ -136,7 +142,7 @@ public class MessagePassing {
      * @param candidates Map of the V vertex to their candidates
      * @return Map of representative V (currently most frequent) to connected components Vs
      */
-    public Map<V, Collection<V>> greedyClustering(Map<V, List<Candidate>> candidates) {
+    public Map<RefV, Collection<RefV>> greedyClustering(Map<V, List<Candidate>> candidates) {
         // add similarity edges between tokens (REF_REF edges)
         candidates.values().stream().flatMap(Collection::stream).forEach(c -> {
             if(c.getDestRefV() != c.getOriginRefV())
@@ -144,27 +150,28 @@ public class MessagePassing {
         });
 
         // collect REFs and prioritize them
-        List<V> sortedVs = g.getVs(V.Type.REFERENCE).stream()
+        List<RefV> sortedVs = g.getVs(V.Type.REFERENCE).stream().map(v -> (RefV)v)
                 .filter(v -> v.hasInOutE(E.Type.REF_REF)).sorted(
-                        Comparator.comparing((V v) -> v.getOutE(E.Type.REF_TKN).size())
+                        Comparator.comparing((RefV v) -> v.getOutE(E.Type.REF_TKN).size())
                                 .thenComparing(t -> t.getOutE(E.Type.REF_TKN).stream().filter(e -> ((TokenE)e).getIsAbbr()).count())
                                 .thenComparing(V::getWeight, Comparator.reverseOrder())
                 ).collect(Collectors.toList());
 
         // BFS traversal on REF_REF edges
-        Map<V, Collection<V>> components = HashObjObjMaps.newMutableMap();
-        Map<V, Boolean> refsToNotVisited = sortedVs.stream().collect(Collectors.toMap(Function.identity(), x -> true));
+        Map<RefV, Collection<RefV>> components = HashObjObjMaps.newMutableMap();
+        Map<RefV, Boolean> refsToNotVisited = sortedVs.stream().collect(Collectors.toMap(Function.identity(), x -> true));
         long maxId = g.getVs().keySet().stream().max(Comparator.naturalOrder()).orElse(1L);
-        for (V v : refsToNotVisited.keySet()) {
+        for (RefV v : refsToNotVisited.keySet()) {
             if (!refsToNotVisited.get(v))
                 continue;
-            Queue<V> queue = new LinkedList<>(Collections.singletonList(v));
+            Queue<RefV> queue = new LinkedList<>(Collections.singletonList(v));
             refsToNotVisited.put(v, false);
             ClusterV clusterV = (ClusterV) v.getInV(E.Type.CLS_REF);
             Map<TokenE.NamePart, Map<V, Boolean>> reprMap = clusterV.getProfileMap();
             while (!queue.isEmpty()) {
-                V u = queue.remove();
-                u.getInOutV(E.Type.REF_REF).stream().filter(refsToNotVisited::get).forEach(adj -> {
+                RefV u = queue.remove();
+                u.getInOutV(E.Type.REF_REF).stream().map(e -> (RefV)e)
+                        .filter(refsToNotVisited::get).forEach(adj -> {
                     // TODO: 07/08/2018 update token types if increase consensus and cluster again
                     if(true) {
                         queue.add(adj);
@@ -183,10 +190,10 @@ public class MessagePassing {
 
     public class Message implements Cloneable{
         //region Fields
-        private V originRefV;
-        private V destRefV;
+        private RefV originRefV;
+        private RefV destRefV;
         private Float similarity;
-        private V firstToken;
+        private ElementV firstToken;
         private Integer maxLevel = 0;
         //endregion
 
@@ -196,11 +203,11 @@ public class MessagePassing {
          *
          * @return Vertex of message origin
          */
-        public V getOriginRefV() {
+        public RefV getOriginRefV() {
             return originRefV;
         }
 
-        public void setOriginRefV(V originRefV) {
+        public void setOriginRefV(RefV originRefV) {
             this.originRefV = originRefV;
         }
 
@@ -222,11 +229,11 @@ public class MessagePassing {
          *
          * @return value of destRefV
          */
-        public V getDestRefV() {
+        public RefV getDestRefV() {
             return destRefV;
         }
 
-        public void setDestRefV(V destRefV) {
+        public void setDestRefV(RefV destRefV) {
             this.destRefV = destRefV;
         }
 
@@ -235,11 +242,11 @@ public class MessagePassing {
          *
          * @return value of firstToken
          */
-        public V getFirstToken() {
+        public ElementV getFirstToken() {
             return firstToken;
         }
 
-        public void setFirstToken(V firstToken) {
+        public void setFirstToken(ElementV firstToken) {
             this.firstToken = firstToken;
         }
 
@@ -261,12 +268,12 @@ public class MessagePassing {
         }
         //endregion
 
-        public Message(V originRefV, Float similarity) {
+        public Message(RefV originRefV, Float similarity) {
             this.originRefV = originRefV;
             this.similarity = similarity;
         }
 
-        public Message(V originRefV, Float similarity, V destRefV, V firstToken, Integer maxLevel) {
+        public Message(RefV originRefV, Float similarity, RefV destRefV, ElementV firstToken, Integer maxLevel) {
             this.originRefV = originRefV;
             this.similarity = similarity;
             this.destRefV = destRefV;
@@ -291,8 +298,8 @@ public class MessagePassing {
         public static final int MIN_COMMON_TOKENS_THRESHOLD = 1;
 
         //region Fields
-        private V destRefV;
-        private V originRefV;
+        private RefV destRefV;
+        private RefV originRefV;
         private Float sumSimilarity;
         private List<Message> messageList;
         //endregion
@@ -304,7 +311,7 @@ public class MessagePassing {
          *
          * @return V with REFERENCE type of destination
          */
-        public V getDestRefV() {
+        public RefV getDestRefV() {
             return destRefV;
         }
 
@@ -313,7 +320,7 @@ public class MessagePassing {
          *
          * @return V with REFERENCE type of origin
          */
-        public V getOriginRefV() {
+        public RefV getOriginRefV() {
             return originRefV;
         }
 
@@ -346,7 +353,7 @@ public class MessagePassing {
         //endregion
 
 
-        public Candidate(V destRefV, V originRefV, List<Message> messageList) {
+        public Candidate(RefV destRefV, RefV originRefV, List<Message> messageList) {
             this.destRefV = destRefV;
             this.originRefV = originRefV;
             this.messageList = messageList;

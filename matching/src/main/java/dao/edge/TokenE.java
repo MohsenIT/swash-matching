@@ -1,5 +1,6 @@
-package ds;
+package dao.edge;
 
+import dao.vertex.V;
 import helper.StringHelper;
 
 public class TokenE extends E {

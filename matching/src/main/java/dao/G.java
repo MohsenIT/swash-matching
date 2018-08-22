@@ -1,12 +1,21 @@
-package ds;
+package dao;
 
 import com.koloboke.collect.map.hash.HashLongObjMaps;
 import com.koloboke.collect.set.hash.HashObjSets;
-import ds.TokenE.NamePart;
+import dao.edge.E;
+import dao.edge.TokenE;
+import dao.edge.TokenE.NamePart;
+import dao.vertex.ClusterV;
+import dao.vertex.ElementV;
+import dao.vertex.RefV;
+import dao.vertex.V;
 import helper.IO;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class G {
 
@@ -106,14 +115,17 @@ public class G {
     public void init(String vertexFilePath, String edgeFilePath) {
         List<String[]> vertices = IO.readCSVLines(vertexFilePath);
         vs = HashLongObjMaps.newMutableMap(40000);
-        assert vertices != null;
+        checkNotNull(vertices, "vertex list should not be null.");
         for (int i = 1; i < vertices.size(); i++) {
             String[] l = vertices.get(i);
-            vs.put(Long.valueOf(l[0]), new V(l[0], l[1], l[2], l[3]));
+            V v = V.Type.isReference(l[2]) ? new RefV(l[0], l[1], l[3]) :
+                    V.Type.isElement(l[2]) ? new ElementV(l[0], l[1], l[2], l[3], 0) :
+                            new V(l[0], l[1], l[2], l[3]);
+            vs.put(Long.valueOf(l[0]), v);
         }
 
         List<String[]> edges = IO.readCSVLines(edgeFilePath);
-        assert edges != null;
+        checkNotNull(edges, "edge list should not be null.");
         es = HashObjSets.newMutableSet(80000);
         for (int i = 1; i < edges.size(); i++) {
             String[] l = edges.get(i);
@@ -136,8 +148,9 @@ public class G {
      */
     public void initClusters() {
         long maxId = vs.keySet().stream().mapToLong(Long::longValue).max().orElse(1);
-        Set<V> refVs = vs.values().stream().filter(e -> e.getType() == V.Type.REFERENCE).collect(Collectors.toSet());
-        for (V refV : refVs) {
+        Set<RefV> refVs = vs.values().stream().filter(e -> e.getType() == V.Type.REFERENCE)
+                .map(RefV.class::cast).collect(Collectors.toSet());
+        for (RefV refV : refVs) {
             ClusterV clusV = new ClusterV(++maxId, refV);
             E clusE = new E(clusV, refV, E.Type.CLS_REF, 1.0f);
             refV.addInE(clusE);
@@ -152,8 +165,9 @@ public class G {
      * Assign name's part type (firstname, lastname , ...) to the REF_TKN edges
      */
     public void initNamesPart() {
-        List<V> refVs = vs.values().stream().filter(e -> e.getType() == V.Type.REFERENCE).collect(Collectors.toList());
-        for (V refV : refVs) {
+        List<RefV> refVs = vs.values().stream().filter(e -> e.getType() == V.Type.REFERENCE)
+                .map(RefV.class::cast).collect(Collectors.toList());
+        for (RefV refV : refVs) {
             List<TokenE> tokenEs = refV.getOutE(E.Type.REF_TKN).stream().map(e -> (TokenE) e).sorted(
                     Comparator.comparing(TokenE::getIsAbbr)
                             .thenComparing(TokenE::getOrder, Comparator.reverseOrder()))
@@ -187,9 +201,9 @@ public class G {
      *
      * @param clusters a map of cluster Vs and their representative
      */
-    public void updateClusters(Map<V, Collection<V>> clusters) {
-        for (Map.Entry<V, Collection<V>> cluster : clusters.entrySet()) {
-           for (V v : cluster.getValue())
+    public void updateClusters(Map<RefV, Collection<RefV>> clusters) {
+        for (Map.Entry<RefV, Collection<RefV>> cluster : clusters.entrySet()) {
+           for (RefV v : cluster.getValue())
                 v.replaceReferenceCluster(cluster.getKey());
         }
     }
@@ -199,40 +213,49 @@ public class G {
      *
      * @param allCandidatesVs all vertices in the candidates collection
      */
-    public void updateClustersToRealClusters(Collection<V> allCandidatesVs) {
-        Queue<V> queue = new LinkedList<>(allCandidatesVs);
+    public void updateClustersToRealClusters(Collection<RefV> allCandidatesVs) {
+        Queue<RefV> queue = new LinkedList<>(allCandidatesVs);
         while (!queue.isEmpty()) {
-            V refV = queue.peek();
-            List<V> vsInRID = refV.getInV(E.Type.RID_REF).iterator().next().getOutV(E.Type.RID_REF).stream()
-                    .filter(queue::contains).collect(Collectors.toList());
-            for (V v : vsInRID)
+            RefV refV = queue.peek();
+            List<RefV> vsInRID = refV.getInV(E.Type.RID_REF).iterator().next().getOutV(E.Type.RID_REF).stream()
+                    .filter(queue::contains).map(RefV.class::cast).collect(Collectors.toList());
+            for (RefV v : vsInRID)
                 v.replaceReferenceCluster(refV);
             queue.removeAll(vsInRID);
         }
     }
 
     /**
-     * update the clusterCnt field of all vertices with level >= 0
-     * (all type except CLS & RID).
+     * update the clusterCnt field of all {@code ElementV}s
      *
      * @param maxUpdateLevel max level to update cluster count in the graph
      *                       note that level 0 is REF type, 1 is TKN type , and etc.
-     *                       if this parameter is null, max possible level is considered.
      */
     public void updateAncestorClusterCnt(Integer maxUpdateLevel){
-        Integer maxLevel = maxUpdateLevel != null ? maxUpdateLevel : V.Type.maxLevel;
-        List<V> allNotNegativeLevelVs = vs.values().stream()
-                .filter(v -> v.getLevel() >= 0 & v.getLevel() <= maxLevel)
+        checkNotNull(maxUpdateLevel);
+        checkArgument(maxUpdateLevel>=1 && maxUpdateLevel <=3, "maxUpdateLevel must be between [1, 3].");
+        List<ElementV> elementVs = vs.values().stream()
+                .filter(v -> v.getLevel() > 0 && v.getLevel() <= maxUpdateLevel)
+                .map(ElementV.class::cast)
                 .sorted(Comparator.comparing(V::getLevel))
                 .collect(Collectors.toList());
-        for (V v : allNotNegativeLevelVs) {
+        for (ElementV v : elementVs) {
             int clusterCnt = v.getInE().entrySet().stream()
                     .filter(t -> t.getKey().isInterLevel())
                     .flatMapToInt(e -> e.getValue().stream()
-                            .mapToInt(x -> x.getInV().getClusterCount())
+                            .mapToInt(x -> x.getInV() instanceof RefV ? 1 : ((ElementV)x.getInV()).getClusterCount())
                     ).sum();
             v.setClusterCount(clusterCnt);
         }
-        System.out.printf("\tClusterCount property of every vertex of level>0 is updated up to level %d.", maxLevel);
+        System.out.printf("\tClusterCount property of every vertex of level>0 is updated up to level %d.", maxUpdateLevel);
     }
+
+     /**
+     * update the clusterCnt field of all vertices with max of possible levels (SIMILAR).
+     */
+    public void updateAncestorClusterCnt(){
+        updateAncestorClusterCnt(V.Type.maxLevel);
+    }
+
+
 }

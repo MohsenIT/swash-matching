@@ -1,14 +1,15 @@
-package ds;
+package dao.vertex;
 
 import com.koloboke.collect.map.hash.HashObjObjMaps;
 import com.koloboke.collect.set.hash.HashObjSets;
-import org.apache.tinkerpop.shaded.kryo.util.IntArray;
+import dao.edge.E;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static ds.V.Type.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static dao.vertex.V.Type.*;
 
 /**
  * Vertex class to represent vertices in the graph. The weight attribute allows
@@ -20,7 +21,7 @@ public class V {
         CLUSTER("CLS", -1),
         REFERENCE("REF", 0),
         TOKEN("TKN", 1),
-        HASH("HSH", 2),
+        SIMILAR("SIM", 2),
         ABBREVIATED("ABR", 3);
 
         //region Fields & Getters
@@ -40,6 +41,17 @@ public class V {
         public static Type fromString(String text) {
             return Arrays.stream(values()).filter(b -> b.text.equalsIgnoreCase(text)).findFirst().orElse(null);
         }
+
+        public static boolean isElement(String type) {
+            Type t = fromString(type);
+            return t == TOKEN || t == SIMILAR || t == ABBREVIATED;
+        }
+
+        public static boolean isReference(String type) {
+            return fromString(type) == REFERENCE;
+        }
+
+
     }
 
 
@@ -48,7 +60,6 @@ public class V {
     private String val;
     private Type type;
     private Long weight;
-    private Integer clusterCount;
     private Map<E.Type, Set<E>> inE;
     private Map<E.Type, Set<E>> outE;
     //endregion
@@ -135,50 +146,21 @@ public class V {
     }
 
 
-    /**
-     * Gets number of clusters that exist in the corresponding references.
-     * For all of vertices type except CLS (CLUSTERS) AND RID (RESOLVED_ID),
-     * this field is valid.
-     *
-     * @return Integer value of cluster count
-     */
-    public Integer getClusterCount() {
-        return clusterCount;
-    }
-
-    public void setClusterCount(Integer clusterCount) {
-        this.clusterCount = clusterCount;
-    }
-
-    /**
-     * @return resolved_id if the type of vertex is REF else null
-     */
-    public String getRefResolvedId() {
-        if (type == REFERENCE)
-            return getInV(E.Type.RID_REF).iterator().next().getVal();
-        return null;
-    }
-
     //endregion
 
 
     //region Constructors
-    public V(Long id, String val, Type type, Long weight, Integer clusterCount) {
+    public V(Long id, String val, Type type, Long weight) {
         this.id = id;
         this.val = val;
         this.type = type;
         this.weight = weight;
-        this.clusterCount = clusterCount;
         inE = HashObjObjMaps.newMutableMap();
         outE = HashObjObjMaps.newMutableMap();
     }
 
     public V(String id, String val, String type, String weight) {
-        this(Long.valueOf(id), val, fromString(type), Long.valueOf(weight), 0);
-    }
-
-    public V(Long id, String val, Type type, Long weight){
-        this(id, val, type, weight, null);
+        this(Long.valueOf(id), val, fromString(type), Long.valueOf(weight));
     }
     //endregion
 
@@ -191,7 +173,7 @@ public class V {
      * @return set of in edges
      */
     public Set<E> getInE(E.Type type) {
-        return inE.get(type);
+        return inE.getOrDefault(type, Collections.emptySet());
     }
 
     /**
@@ -201,7 +183,7 @@ public class V {
      * @return set of in edges
      */
     public Set<E> getOutE(E.Type type) {
-        return outE.get(type);
+        return outE.getOrDefault(type, Collections.emptySet());
     }
 
     /**
@@ -266,11 +248,11 @@ public class V {
      * @return set of vertices in the destLevel
      */
     public static Set<V> outVsUntil(Collection<V> vList, int destLevel) {
-        assert !vList.isEmpty() : "list of input vertices should not be empty.";
+        checkArgument(!vList.isEmpty(), "list of input vertices should not be empty.");
         Stream<Integer> levelStream = vList.stream().map(v -> v.getType().getLevel());
-        assert levelStream.distinct().count() == 1 : "list of input vertices should not be in same level.";
+        checkArgument(levelStream.distinct().count() == 1, "list of input vertices should not be in same level.");
         int currentLevel = levelStream.findAny().orElse(10);
-        assert currentLevel <= destLevel : "input level should not be less than vertices level.";
+        checkArgument(currentLevel <= destLevel, "input level should not be less than vertices level.");
 
         Set<V> vs = HashObjSets.newMutableSet(vList);
         while (destLevel ==currentLevel){
@@ -284,25 +266,6 @@ public class V {
 
 
     //region Edit Vertex's Edge Methods
-
-    /**
-     * replace CLUSTER vertex of a this REFERENCE vertex
-     *
-     * @param clusterV new cluster of the reference, the type of this parameter should be CLUSTER or REFERENCE.
-     *                 If REFERENCE vertex is provided, the CLUSTER of this vertex is used.
-     */
-    public void replaceReferenceCluster(V clusterV) {
-        assert this.type != REFERENCE : "The vertex should have REFERENCE type.";
-        assert clusterV.type != CLUSTER && clusterV.type != REFERENCE : "The input parameter type should be REFERENCE or CLUSTER.";
-
-        E e = this.getInE(E.Type.CLS_REF).iterator().next();
-        V clstV = clusterV.type == REFERENCE ? clusterV.getInV(E.Type.CLS_REF).iterator().next() : clusterV;
-        if (e.getInV() == clstV) return;
-
-        e.getInV().removeOutE(e);
-        e.setInV(clstV);
-        clstV.addOutE(e);
-    }
 
     /**
      * Add an in-edge to this vertex

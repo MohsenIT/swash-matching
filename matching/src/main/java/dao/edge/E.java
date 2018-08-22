@@ -1,6 +1,10 @@
-package ds;
+package dao.edge;
+
+import dao.vertex.V;
 
 import java.util.Arrays;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class E {
     public enum Type {
@@ -8,8 +12,8 @@ public class E {
         CLS_REF(-1, 0),
         REF_REF(0, 0),
         REF_TKN(0, 1),
-        TKN_HSH(1, 2),
-        HSH_ABR(2, 3);
+        TKN_SIM(1, 2),
+        SIM_ABR(2, 3);
 
         private int inLevel;
         private int outLevel;
@@ -27,7 +31,8 @@ public class E {
         public boolean isInterLevel() {return inLevel != outLevel;}
 
         public static Type getTypeByLevels(int inLevel, int outLevel){
-            assert inLevel >= 0 && inLevel <= 3 && outLevel >= 0 && outLevel <= 3 : "input levels is not valid";
+            checkArgument(inLevel >= 0 && inLevel <= 2, "InLevel argument was %s but expected in range [0, 2].", inLevel);
+            checkArgument(inLevel + 1 == outLevel, "OutLevel should be InLevel + 1.");
             return Arrays.stream(Type.values()).filter(t -> t.inLevel == inLevel && t.outLevel == outLevel).findAny().orElse(null);
         }
     }

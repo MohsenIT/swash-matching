@@ -1,8 +1,8 @@
 import analysis.Stats;
-import com.google.common.graph.ImmutableValueGraph;
-import ds.E;
-import ds.G;
-import ds.V;
+import dao.edge.E;
+import dao.G;
+import dao.vertex.RefV;
+import dao.vertex.V;
 import evaluation.Pairwise;
 import helper.IO;
 import logic.MessagePassing;
@@ -24,11 +24,11 @@ public class Main {
 
         MessagePassing mp = new MessagePassing(g);
         Map<V, List<MessagePassing.Candidate>> candidates = mp.V(V.Type.REFERENCE)
-                .out(E.Type.REF_TKN).in(E.Type.REF_TKN).aggregateTerminal();
+                .out(E.Type.REF_TKN).in(E.Type.REF_TKN).aggRefVsTerminal();
 
 
         // ------ rule-based approach of clustering ---------------------------
-        Map<V, Collection<V>> components = mp.greedyClustering(candidates);
+        Map<RefV, Collection<RefV>> components = mp.greedyClustering(candidates);
         g.updateClusters(components);
 
         // ------ check upper bound of performance in this step ---------------

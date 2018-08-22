@@ -1,8 +1,8 @@
 package helper;
 
 import com.koloboke.collect.set.hash.HashObjSets;
-import ds.E;
-import ds.V;
+import dao.edge.E;
+import dao.vertex.V;
 import logic.MessagePassing;
 
 import java.io.IOException;

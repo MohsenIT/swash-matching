@@ -1,8 +1,8 @@
 package analysis;
 
-import ds.E;
-import ds.G;
-import ds.V;
+import dao.edge.E;
+import dao.G;
+import dao.vertex.V;
 
 public class Stats {
     public static void calcStats(G g) {

@@ -60,8 +60,8 @@ public class V {
     private String val;
     private Type type;
     private Long weight;
-    private Map<E.Type, Set<E>> inE;
-    private Map<E.Type, Set<E>> outE;
+    private Map<E.Type, List<E>> inE;
+    private Map<E.Type, List<E>> outE;
     //endregion
 
 
@@ -130,18 +130,18 @@ public class V {
     /**
      * Gets IN edges
      *
-     * @return Map of type and corresponding edge set
+     * @return {@code Map} of type and corresponding edge {@code List}
      */
-    public Map<E.Type, Set<E>> getInE() {
+    public Map<E.Type, List<E>> getInE() {
         return inE;
     }
 
     /**
      * Gets OUT edges of specific edge type
      *
-     * @return Map of type and corresponding edge set
+     * @return {@code Map} of type and corresponding edge {@code List}
      */
-    public Map<E.Type, Set<E>> getOutE() {
+    public Map<E.Type, List<E>> getOutE() {
         return outE;
     }
 
@@ -170,32 +170,32 @@ public class V {
      * Gets IN edges of specific edge type
      *
      * @param type edge type
-     * @return set of in edges
+     * @return {@code List} of in edges
      */
-    public Set<E> getInE(E.Type type) {
-        return inE.getOrDefault(type, Collections.emptySet());
+    public List<E> getInE(E.Type type) {
+        return inE.getOrDefault(type, Collections.emptyList());
     }
 
     /**
      * Gets OUT edges of specific edge type
      *
      * @param type edge type
-     * @return set of in edges
+     * @return {@code List} of in edges
      */
-    public Set<E> getOutE(E.Type type) {
-        return outE.getOrDefault(type, Collections.emptySet());
+    public List<E> getOutE(E.Type type) {
+        return outE.getOrDefault(type, Collections.emptyList());
     }
 
     /**
      * Gets IN or OUT edges of specific edge type
      *
      * @param type edge type
-     * @return set of in edges
+     * @return {@code List} of in edges
      */
-    public Set<E> getInOutE(E.Type type) {
-        Set<E> joinSet = getInE(type);
-        joinSet.addAll(getOutE(type));
-        return joinSet;
+    public List<E> getInOutE(E.Type type) {
+        List<E> list = getInE(type);
+        list.addAll(getOutE(type));
+        return list;
     }
 
     /**
@@ -276,7 +276,7 @@ public class V {
         if(inE.containsKey(e.getType()))
             inE.get(e.getType()).add(e);
         else {
-            inE.put(e.getType(), HashObjSets.newMutableSetOf(e));
+            inE.put(e.getType(), new ArrayList<E>() {{add(e);}});
         }
     }
 
@@ -298,7 +298,7 @@ public class V {
         if(outE.containsKey(e.getType()))
             outE.get(e.getType()).add(e);
         else {
-            outE.put(e.getType(), HashObjSets.newMutableSetOf(e));
+            outE.put(e.getType(), new ArrayList<E>() {{add(e);}});
         }
     }
 

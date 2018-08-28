@@ -1,39 +1,66 @@
 package dao.vertex;
 
-import com.koloboke.collect.map.hash.HashObjObjMaps;
 import dao.edge.E;
 import dao.edge.TokenE;
+import logic.matching.ClusterProfile;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static dao.vertex.V.Type.REFERENCE;
 
 public class RefV extends V {
 
+    //region Getters & Setters
+    /**
+     * @return ResolvedIdV of this <i>REFERENCE<i/> vertex if exist else null
+     */
+    public V getRefResolvedIdV() {
+        return getInV(E.Type.RID_REF).iterator().next();
+    }
+
+    /**
+     * @return {@code String} resolved_id of this <i>REFERENCE</i> vertex
+     */
+    public String getRefResolvedId() {
+        return getRefResolvedIdV().getVal();
+    }
+
+    /**
+     * @return clusterV of this <i>REFERENCE<i/> vertex if exist else null
+     */
+    public ClusterV getRefClusterV() {
+        Iterator<V> iterator = getInV(E.Type.CLS_REF).iterator();
+        return iterator.hasNext()? (ClusterV) iterator.next() : null;
+    }
+
+    /**
+     * @return list of {@code TokenE}s of RefV
+     */
+    public List<TokenE> getTokenEs() {
+        return getOutE(E.Type.REF_TKN).stream().map(TokenE.class::cast).collect(Collectors.toList());
+    }
+    //endregion
+
+
     public RefV(String id, String val, String weight) {
         super(Long.valueOf(id), val, REFERENCE, Long.valueOf(weight));
     }
 
+
+    //region Methods
+
     /**
-     * @return resolved_id if the type of vertex is REF else null
+     * Build a ClusterProfile from <i>TokenE</i>s of this <i>refV</i>.
+     *
+     * @return the built {@code ClusterProfile}
      */
-    public String getRefResolvedId() {
-        return getInV(E.Type.RID_REF).iterator().next().getVal();
+    public ClusterProfile buildClusterProfile() {
+        ClusterProfile profile = new ClusterProfile();
+        this.getTokenEs().forEach(e -> profile.addEntry(new ClusterProfile.Entry(e)));
+        return profile;
     }
-
-
-    // TODO: 20/08/2018 migrate V to ElementV
-    public Map<TokenE.NamePart, Map<V, Boolean>> getNamePartsMap() {
-        Map<TokenE.NamePart, Map<V, Boolean>> partsMap = HashObjObjMaps.newMutableMap();
-        this.getOutE(E.Type.REF_TKN).stream().map(e -> (TokenE) e).forEach(e -> {
-            if(partsMap.containsKey(e.getPart()))
-                partsMap.get(e.getPart()).put(e.getOutV(), e.getIsAbbr());
-            else partsMap.put(e.getPart(), HashObjObjMaps.newMutableMap(Collections.singletonMap(e.getOutV(), e.getIsAbbr())));
-        });
-        return partsMap;
-    }
-
 
     /**
      * replace CLUSTER vertex of a this REFERENCE vertex by {@code clusterV} of {@code refV} parameter.
@@ -41,7 +68,7 @@ public class RefV extends V {
      * @param refV reference vertex that its cluster should be replaced by old one.
      */
     public void replaceReferenceCluster(RefV refV) {
-        replaceReferenceCluster((ClusterV) refV.getInV(E.Type.CLS_REF).iterator().next());
+        replaceReferenceCluster(refV.getRefClusterV());
     }
 
     /**
@@ -57,7 +84,5 @@ public class RefV extends V {
         e.setInV(clusterV);
         clusterV.addOutE(e);
     }
-
-
-
+    //endregion
 }

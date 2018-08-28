@@ -93,7 +93,10 @@ public class G {
      * @param type type of edge
      * @param weight weight of edge    */
     public void addE(V inV, V outV, E.Type type, Float weight) {
-        this.es.add(new E(inV, outV, type, weight));
+        E e = new E(inV, outV, type, weight);
+        this.es.add(e);
+        inV.addOutE(e);
+        outV.addInE(e);
     }
 
     /**
@@ -132,7 +135,8 @@ public class G {
 
             V inV = vs.get(Long.valueOf(l[0]));
             V outV = vs.get(Long.valueOf(l[1]));
-            E e = l[4].equals("REF_TKN") ? new TokenE(inV, outV, l[4], l[5]) : new E(inV, outV, l[4], l[5]);
+            E e = l[4].equals("REF_TKN") ?
+                    new TokenE((RefV) inV, (ElementV) outV, l[4], l[5]) : new E(inV, outV, l[4], l[5]);
             inV.addOutE(e);
             outV.addInE(e);
             es.add(e);
@@ -175,18 +179,18 @@ public class G {
 
             TokenE lname, fname;
             lname = tokenEs.get(0);
-            lname.setPart(NamePart.LASTNAME);
+            lname.setNamePart(NamePart.LASTNAME);
             tokenEs.remove(lname);
             fname = tokenEs.stream().sorted(Comparator.comparing(TokenE::getOrder)).findFirst().orElse(null);
             if (fname != null) {
-                fname.setPart(NamePart.FIRSTNAME);
+                fname.setNamePart(NamePart.FIRSTNAME);
                 tokenEs.remove(fname);
                 for (TokenE e : tokenEs) {
                     if(e.getOrder() > lname.getOrder())
-                        e.setPart(NamePart.SUFFIX);
+                        e.setNamePart(NamePart.SUFFIX);
                     else if(e.getOrder() > fname.getOrder() && e.getOrder() < lname.getOrder())
-                        e.setPart(NamePart.MIDDLENAME);
-                    else e.setPart(NamePart.PREFIX);
+                        e.setNamePart(NamePart.MIDDLENAME);
+                    else e.setNamePart(NamePart.PREFIX);
                 }
             }
 
@@ -247,7 +251,7 @@ public class G {
                     ).sum();
             v.setClusterCount(clusterCnt);
         }
-        System.out.printf("\tClusterCount property of every vertex of level>0 is updated up to level %d.", maxUpdateLevel);
+        System.out.printf("\tClusterCount property of every vertex of level>0 is updated up to level %d.\r\n", maxUpdateLevel);
     }
 
      /**

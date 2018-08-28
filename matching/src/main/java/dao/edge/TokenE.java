@@ -1,6 +1,7 @@
 package dao.edge;
 
-import dao.vertex.V;
+import dao.vertex.ElementV;
+import dao.vertex.RefV;
 import helper.StringHelper;
 
 public class TokenE extends E {
@@ -9,7 +10,8 @@ public class TokenE extends E {
     //region Fields
     private Byte order;
     private Boolean isAbbr;
-    private NamePart part;
+    private Boolean isBeforeDot;
+    private NamePart namePart;
     private Byte confidence;
     //endregion
 
@@ -30,7 +32,7 @@ public class TokenE extends E {
     /**
      * Is the token abbreviated or not?
      *
- * @return boolean value isAbbreviation
+     * @return boolean value isAbbreviation
      */
     public Boolean getIsAbbr() {
         return isAbbr;
@@ -41,16 +43,29 @@ public class TokenE extends E {
     }
 
     /**
-     * Gets predicted name's part of token
+     * Is a dot exists after name's token or not?
      *
-     * @return value of part: PREFIX, FIRSTNAME, MIDDLENAME, LASTNAME or SUFFIX
+     * @return <tt>true</tt> if exist and otherwise <tt>false</tt>
      */
-    public NamePart getPart() {
-        return part;
+    public Boolean getIsBeforeDot() {
+        return isBeforeDot;
     }
 
-    public void setPart(NamePart part) {
-        this.part = part;
+    public void setIsBeforeDot(Boolean beforeDot) {
+        isBeforeDot = beforeDot;
+    }
+
+    /**
+     * Gets predicted name's part of token
+     *
+     * @return value of name's part: PREFIX, FIRSTNAME, MIDDLENAME, LASTNAME or SUFFIX
+     */
+    public NamePart getNamePart() {
+        return namePart;
+    }
+
+    public void setNamePart(NamePart namePart) {
+        this.namePart = namePart;
     }
 
     /**
@@ -66,16 +81,27 @@ public class TokenE extends E {
         this.confidence = confidence;
     }
 
+    @Override
+    public ElementV getOutV() {
+        return (ElementV) super.getOutV();
+    }
+
+    @Override
+    public RefV getInV() {
+        return (RefV) super.getInV();
+    }
+
     //endregion
 
-    public TokenE(V inV, V outV, String type, String weight) {
+    public TokenE(RefV inV, ElementV outV, String type, String weight) {
         super(inV, outV, type, weight);
         this.order = Byte.valueOf(weight);
-        this.isAbbr = StringHelper.isAbbreviated(outV.getVal().length(), inV.getVal(), order);
+        this.isAbbr = StringHelper.isAbbreviated(outV.getVal().length());
+        this.isBeforeDot = StringHelper.isBeforeDot(outV.getVal().length(), inV.getVal(), order);
     }
 
     @Override
     public String toString() {
-        return String.format("E[%s] %s -%s-> %s", super.getType(), super.getInV().getVal(), part, super.getOutV().getVal());
+        return String.format("E[%s] %s -%s-> %s", super.getType(), super.getInV().getVal(), namePart, super.getOutV().getVal());
     }
 }

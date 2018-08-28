@@ -5,11 +5,12 @@ import com.koloboke.collect.map.hash.HashObjObjMaps;
 import dao.*;
 import dao.edge.E;
 import dao.edge.TokenE;
-import dao.vertex.ClusterV;
 import dao.vertex.ElementV;
 import dao.vertex.RefV;
 import dao.vertex.V;
 import helper.GraphAnalysis;
+import logic.matching.ClusterProfile;
+import logic.matching.MatchResult;
 
 import java.util.*;
 import java.util.function.Function;
@@ -48,7 +49,7 @@ public class MessagePassing {
                 m.incMaxLevel();
                 m.setSimilarity(m.getSimilarity()/elementV.getClusterCount());
                 if(elementV.getType() == V.Type.TOKEN)
-                    m.setFirstToken((ElementV) elementV);
+                    m.setFirstToken(elementV);
                 nextPosition.put(m, elementV);
             }
         }
@@ -73,7 +74,7 @@ public class MessagePassing {
         return this;
     }
 
-    public Map<V, List<Candidate>> aggRefVsTerminal() {
+    public Map<V, List<Candidate>> aggRefVsTerminal(int minCommonMessages) {
         Map<RefV, Map<RefV, List<Message>>> result = currentPosition.keySet().stream()
                 .collect(Collectors.groupingBy(Message::getDestRefV,
                         Collectors.groupingBy(Message::getOriginRefV)));
@@ -85,7 +86,7 @@ public class MessagePassing {
 
             for (Map.Entry<RefV, List<Message>> org: dst.getValue().entrySet()) {
                 Candidate can = new Candidate(dst.getKey(), org.getKey(), org.getValue());
-                if(can.sumSimilarity >= simThreshold && can.messageList.size() >= Candidate.MIN_COMMON_TOKENS_THRESHOLD)
+                if(can.sumSimilarity >= simThreshold && can.messageList.size() >= minCommonMessages)
                     candidateList.add(can);
             }
             if(candidateList.size() > 1)
@@ -142,7 +143,7 @@ public class MessagePassing {
      * @param candidates Map of the V vertex to their candidates
      * @return Map of representative V (currently most frequent) to connected components Vs
      */
-    public Map<RefV, Collection<RefV>> greedyClustering(Map<V, List<Candidate>> candidates) {
+    public void greedyClustering(Map<V, List<Candidate>> candidates) {
         // add similarity edges between tokens (REF_REF edges)
         candidates.values().stream().flatMap(Collection::stream).forEach(c -> {
             if(c.getDestRefV() != c.getOriginRefV())
@@ -158,31 +159,32 @@ public class MessagePassing {
                 ).collect(Collectors.toList());
 
         // BFS traversal on REF_REF edges
-        Map<RefV, Collection<RefV>> components = HashObjObjMaps.newMutableMap();
-        Map<RefV, Boolean> refsToNotVisited = sortedVs.stream().collect(Collectors.toMap(Function.identity(), x -> true));
+        Map<RefV, Boolean> refsToNotVisited = sortedVs.stream().collect(Collectors.toMap(Function.identity(), x -> true, (a,b)->a, LinkedHashMap::new));
         long maxId = g.getVs().keySet().stream().max(Comparator.naturalOrder()).orElse(1L);
         for (RefV v : refsToNotVisited.keySet()) {
             if (!refsToNotVisited.get(v))
                 continue;
             Queue<RefV> queue = new LinkedList<>(Collections.singletonList(v));
             refsToNotVisited.put(v, false);
-            ClusterV clusterV = (ClusterV) v.getInV(E.Type.CLS_REF);
-            Map<TokenE.NamePart, Map<V, Boolean>> reprMap = clusterV.getProfileMap();
+            ClusterProfile clusterProfile = v.getRefClusterV().getProfile();
             while (!queue.isEmpty()) {
                 RefV u = queue.remove();
                 u.getInOutV(E.Type.REF_REF).stream().map(e -> (RefV)e)
-                        .filter(refsToNotVisited::get).forEach(adj -> {
-                    // TODO: 07/08/2018 update token types if increase consensus and cluster again
-                    if(true) {
+                        .filter(refsToNotVisited::get).forEach((RefV adj) -> {
+                    MatchResult result = clusterProfile.match(adj);
+                    boolean isConsistent = result.isConsistent();
+                    if(isConsistent) {
                         queue.add(adj);
                         refsToNotVisited.put(adj, false);
-                        u.replaceReferenceCluster(v);
+                        adj.replaceReferenceCluster(u);
+                        clusterProfile.merge(result); // TODO: 26/08/2018 implement merge
+                    }
+                    else if(u.getRefResolvedIdV() == adj.getRefResolvedIdV()){
+                        System.out.printf("%s\t%s\t%s%n", u.getVal(), adj.getVal(), clusterProfile);
                     }
                 });
             }
-            clusterV.setProfileMap(reprMap);
         }
-        return components;
     }
     //endregion
 
@@ -295,7 +297,7 @@ public class MessagePassing {
     public class Candidate {
 
         public static final float SIM_PROPORTION_THRESHOLD = 0.5f;
-        public static final int MIN_COMMON_TOKENS_THRESHOLD = 1;
+        public static final int MIN_COMMON_TOKENS_THRESHOLD = 2;
 
         //region Fields
         private RefV destRefV;

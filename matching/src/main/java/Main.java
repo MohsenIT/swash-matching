@@ -24,22 +24,20 @@ public class Main {
 
         MessagePassing mp = new MessagePassing(g);
         Map<V, List<MessagePassing.Candidate>> candidates = mp.V(V.Type.REFERENCE)
-                .out(E.Type.REF_TKN).in(E.Type.REF_TKN).aggRefVsTerminal();
-
+                .out(E.Type.REF_TKN).in(E.Type.REF_TKN).aggRefVsTerminal(2);
 
         // ------ rule-based approach of clustering ---------------------------
-        Map<RefV, Collection<RefV>> components = mp.greedyClustering(candidates);
-        g.updateClusters(components);
+        mp.greedyClustering(candidates);
+        // g.updateClusters(components);
 
         // ------ check upper bound of performance in this step ---------------
         // Collection<ImmutableValueGraph<Long, Double>> componentGraphs = mp.connectedCandidatesGuavaGraphs(candidates);
         // Map<V, Collection<V>> components = mp.graphsToClusters(componentGraphs);
         // g.updateClustersToRealClusters(components.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
+
         eval.evaluate();
-
-        IO.writeSimilarityGraph(candidates, "matching/out");
-
-        int a = 1;
+        //IO.writeSimilarityGraph(candidates, "matching/out");
+        System.out.println(eval);
         Stats.calcStats(g);
     }
 

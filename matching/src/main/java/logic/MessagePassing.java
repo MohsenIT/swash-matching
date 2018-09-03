@@ -173,13 +173,16 @@ public class MessagePassing {
                         .filter(refsToNotVisited::get).forEach((RefV adj) -> {
                     MatchResult result = clusterProfile.match(adj);
                     boolean isConsistent = result.isConsistent();
+                    if(!isConsistent){
+                        result.canBecomeConsistent();
+                    }
                     if(isConsistent) {
                         queue.add(adj);
                         refsToNotVisited.put(adj, false);
                         adj.replaceReferenceCluster(u);
-                        clusterProfile.merge(result); // TODO: 26/08/2018 implement merge
+                        clusterProfile.merge(result);
                     }
-                    else if(u.getRefResolvedIdV() == adj.getRefResolvedIdV()){
+                    if(isConsistent && u.getRefResolvedIdV() != adj.getRefResolvedIdV()){
                         System.out.printf("%s\t%s\t%s%n", u.getVal(), adj.getVal(), clusterProfile);
                     }
                 });

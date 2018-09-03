@@ -2,10 +2,45 @@ package dao.edge;
 
 import dao.vertex.ElementV;
 import dao.vertex.RefV;
+import dao.vertex.V;
 import helper.StringHelper;
 
-public class TokenE extends E {
-    public enum NamePart{PREFIX, FIRSTNAME, MIDDLENAME, LASTNAME, SUFFIX}
+public class TokenE extends E implements Cloneable{
+    public enum NamePart{
+        PREFIX(1), FIRSTNAME(2), MIDDLENAME(3), LASTNAME(4), SUFFIX(5);
+
+        private int rank;
+
+        //region Getters & Setters
+        /**
+         * Gets default rank of name's part
+         *
+         * @return int value of rank
+         */
+        public int getRank() {
+            return rank;
+        }
+
+        public void setRank(int rank) {
+            this.rank = rank;
+        }
+        //endregion
+
+        NamePart(int rank) {
+            this.rank = rank;
+        }
+
+        public NamePart nextRankedNamePart() {
+            if(this.rank == 5) return SUFFIX;
+            return NamePart.values()[this.rank];
+        }
+
+        public NamePart previousRankedNamePart() {
+            if(this.rank == 1) return PREFIX;
+            return NamePart.values()[this.rank-2];
+        }
+    }
+
 
     //region Fields
     private Byte order;
@@ -15,11 +50,12 @@ public class TokenE extends E {
     private Byte confidence;
     //endregion
 
+
     //region Getters & Setters
     /**
-     * Gets order of token in the reference name
+     * Gets rank of token in the reference name
      *
-     * @return value of order
+     * @return value of rank
      */
     public Byte getOrder() {
         return order;
@@ -69,6 +105,23 @@ public class TokenE extends E {
     }
 
     /**
+     * Increase the rank of namePart, for example if namepart is LASTNAME change it to SUFFIX
+     */
+    public void incNamePartRank() {
+        namePart = namePart.nextRankedNamePart();
+    }
+
+    /**
+     * Decrease the rank of namePart, for example if namepart is FIRSTNAME change it to PREFIX
+     */
+    public void decNamePartRank() {
+        namePart = namePart.previousRankedNamePart();
+    }
+
+
+
+
+    /**
      * Gets confidence of name's part
      *
      * @return value of confidence
@@ -91,7 +144,12 @@ public class TokenE extends E {
         return (RefV) super.getInV();
     }
 
+    public boolean isMiddleName(){
+        return namePart == NamePart.MIDDLENAME;
+    }
+
     //endregion
+
 
     public TokenE(RefV inV, ElementV outV, String type, String weight) {
         super(inV, outV, type, weight);
@@ -100,8 +158,40 @@ public class TokenE extends E {
         this.isBeforeDot = StringHelper.isBeforeDot(outV.getVal().length(), inV.getVal(), order);
     }
 
+    public TokenE(TokenE e) {
+        super(e.getInV(), e.getOutV(), e.getType(), e.getWeight());
+        this.order = e.getOrder();
+        this.isAbbr = e.getIsAbbr();
+        this.isBeforeDot = e.getIsBeforeDot();
+        this.namePart = e.getNamePart();
+        this.confidence = e.getConfidence();
+    }
+
+
     @Override
     public String toString() {
         return String.format("E[%s] %s -%s-> %s", super.getType(), super.getInV().getVal(), namePart, super.getOutV().getVal());
+    }
+
+    @Override
+    public TokenE clone() {
+        return new TokenE(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof TokenE)) return false;
+        TokenE e = (TokenE) o;
+        return super.getInV().equals(e.getInV()) && super.getOutV().equals(e.getOutV()) && this.order.equals(e.order);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + super.getInV().hashCode();
+        result = 31 * result + super.getOutV().hashCode();
+        result = 31 * result + this.order;
+        return result;
     }
 }

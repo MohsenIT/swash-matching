@@ -40,6 +40,12 @@ public class ClusterProfile {
     public void addEntry(Entry entry) {
         this.entries.add(entry);
     }
+
+    public void addEntry(Entry entry, byte index) {
+        entry.setOrder(index);
+        this.entries.stream().filter(e -> e.getOrder() >= index).forEach(Entry::incOrder);
+        this.entries.add(index - 1, entry);
+    }
     //endregion
 
 
@@ -47,21 +53,22 @@ public class ClusterProfile {
         this.entries = new ArrayList<>(4);
     }
 
+
     //region Methods
     public MatchResult match(RefV refV) {
         Map<ElementV, Set<TokenE>> refMap = refV.getTokenEs().stream().collect(groupingBy(TokenE::getOutV, mapping(Function.identity(), toSet())));
         Map<ElementV, Set<ClusterProfile.Entry>> profileMap = entries.stream().collect(groupingBy(Entry::getElementV, mapping(Function.identity(), toSet())));
 
-        MatchResult result = new MatchResult(this);
+        MatchResult result = new MatchResult(this, refV.getTokenEs());
         for (int i = 1; i <= V.Type.maxLevel; i++) {
             refMap = outElementVsAtLeast(refMap, i);
             profileMap = outElementVsAtLeast(profileMap, i);
 
-            List<MatchResult.Entry> matchedEntriesToRemove = new ArrayList<>();
+            List<MatchResult.Matched> matchedEntriesToRemove = new ArrayList<>();
             for (Map.Entry<ElementV, Set<TokenE>> r : refMap.entrySet()) {
                 if(profileMap.containsKey(r.getKey()))
                     profileMap.get(r.getKey()).forEach(entry -> r.getValue().forEach(tokenE -> {
-                        MatchResult.Entry matched = new MatchResult.Entry(entry, tokenE, r.getKey());
+                        MatchResult.Matched matched = new MatchResult.Matched(entry, tokenE, r.getKey());
                         if(!matched.isNonAbbrsMatchedInAbbrLevel() && !matched.isAbbrsMatchedInNonTokenLevel()) {
                             result.addMatchedEntries(matched);
                             if (entry.getNamePart() == tokenE.getNamePart()) // If not, may be matched in upper level
@@ -71,7 +78,7 @@ public class ClusterProfile {
             }
             // elementVs is removed out of above loops to does not change Maps during iteration
             // if an entry contains more than 1 element on its set, remove only the same element (not whole entry)
-            for (MatchResult.Entry me : matchedEntriesToRemove) {
+            for (MatchResult.Matched me : matchedEntriesToRemove) {
                 Set<TokenE> tokenEs = refMap.get(me.getMatchedV());
                 if(tokenEs != null && tokenEs.size() > 1) tokenEs.remove(me.getRefTokenE()); else refMap.remove(me.getMatchedV());
                 Set<Entry> profEs = profileMap.get(me.getMatchedV());
@@ -80,15 +87,20 @@ public class ClusterProfile {
         }
         result.setNotMatchedProfileEntries(profileMap.values().stream().flatMap(Collection::stream).collect(toList()));
         result.setNotMatchedTokenEs(refMap.values().stream().flatMap(Collection::stream).collect(toList()));
+        result.setSortedTokenEs();
         return result;
     }
 
     public void merge(MatchResult matchResult) {
-        matchResult.getNotMatchedTokenEs().stream().map(Entry::new).forEach(this::addEntry);
-        // TODO: 27/08/2018 order should be updated
+        matchResult.getNotMatchedTokenEs().stream().map(Entry::new).forEach(entry -> {
+            byte index = (byte) (matchResult.getMatchedEntries().stream()
+                    .filter(e -> e.getRefTokenE().getOrder() < entry.getOrder())
+                    .mapToInt(e -> e.getProfileEntry().getOrder()).max().orElse(0) + 1);
+            addEntry(entry, index);
+        });
 
         // TODO: 27/08/2018 Is this merge is valid? We should change 'Ali A Raeesi' to 'Ali Akbar Raeesi'?
-        matchResult.getMatchedEntries().stream().filter(MatchResult.Entry::isProfileAbbrAndRefNonAbbr)
+        matchResult.getMatchedEntries().stream().filter(MatchResult.Matched::isProfileAbbrAndRefNonAbbr)
                 .forEach(matched -> matched.setProfileEntry(new Entry(matched.getRefTokenE())));
 
         // TODO: 27/08/2018 if matched on 2nd level?
@@ -208,6 +220,10 @@ public class ClusterProfile {
 
         public void setOrder(Byte order) {
             this.order = order;
+        }
+
+        public void incOrder() {
+            this.order++;
         }
         //endregion
 

@@ -5,8 +5,8 @@ public class StringHelper {
         return tokenLength == 1;
     }
 
-    public static boolean isBeforeDot(int tokenLength, String name, Byte tokenOrder) {
+    public static boolean isBeforeDot(int tokenLength, String name, Integer tokenOrder) {
         String[] splits = name.split("[^\\W']+");
-        return splits.length > tokenOrder && splits[tokenOrder].startsWith(".");
+        return splits.length > tokenOrder+1 && splits[tokenOrder+1].startsWith(".");
     }
 }

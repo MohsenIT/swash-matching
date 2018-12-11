@@ -110,5 +110,8 @@
     <orderEntry type="library" name="Maven: com.koloboke:koloboke-impl-jdk8:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: com.koloboke:koloboke-impl-common-jdk8:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: com.koloboke:koloboke-api-jdk8:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: info.debatty:java-string-similarity:1.1.0" level="project" />
+    <orderEntry type="library" name="Maven: net.jcip:jcip-annotations:1.0" level="project" />
+    <orderEntry type="library" name="Maven: de.zedlitz:phonet4java:1.1" level="project" />
   </component>
 </module>

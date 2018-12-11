@@ -1,4 +1,4 @@
-package evaluation;
+package evaluation.collective;
 
 import dao.edge.E;
 import dao.G;
@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Pairwise {
+public class PairwiseFMeasure {
 
     //region field
     private Double pairwisePrecision = 0.0;
@@ -23,7 +23,7 @@ public class Pairwise {
     //region getter and setter
 
     /**
-     * Gets Pairwise Precision
+     * Gets PairwiseFMeasure Precision
      *
      * @return value of pairwisePrecision
      */
@@ -52,7 +52,7 @@ public class Pairwise {
     //endregion
 
 
-    public Pairwise(G g) {
+    public PairwiseFMeasure(G g) {
         resolvedIdCntMap = g.getVs(V.Type.RESOLVED_ID).stream().collect(Collectors.toMap(V::getVal, V::getWeight));
         this.g = g;
     }
@@ -80,7 +80,7 @@ public class Pairwise {
 
     @Override
     public String toString() {
-        return String.format("Pairwise measures{F1=%s, Precision=%s, pairwiseRecall=%s}"
+        return String.format("PairwiseFMeasure measures{F1=%s, Precision=%s, pairwiseRecall=%s}"
                 , getPairwiseF1(), pairwisePrecision, pairwiseRecall);
     }
 }

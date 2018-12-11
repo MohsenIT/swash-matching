@@ -43,11 +43,11 @@ public class TokenE extends E implements Cloneable{
 
 
     //region Fields
-    private Byte order;
+    private Integer order;
     private Boolean isAbbr;
     private Boolean isBeforeDot;
     private NamePart namePart;
-    private Byte confidence;
+    private Integer confidence;
     //endregion
 
 
@@ -57,11 +57,14 @@ public class TokenE extends E implements Cloneable{
      *
      * @return value of rank
      */
-    public Byte getOrder() {
+    public Integer getOrder() {
         return order;
     }
 
-    public void setOrder(Byte order) {
+    /**
+     * @param order zero indexed order of this token in {@code refV}
+     */
+    public void setOrder(Integer order) {
         this.order = order;
     }
 
@@ -126,11 +129,11 @@ public class TokenE extends E implements Cloneable{
      *
      * @return value of confidence
      */
-    public Byte getConfidence() {
+    public Integer getConfidence() {
         return confidence;
     }
 
-    public void setConfidence(Byte confidence) {
+    public void setConfidence(Integer confidence) {
         this.confidence = confidence;
     }
 
@@ -153,7 +156,7 @@ public class TokenE extends E implements Cloneable{
 
     public TokenE(RefV inV, ElementV outV, String type, String weight) {
         super(inV, outV, type, weight);
-        this.order = Byte.valueOf(weight);
+        this.order = Integer.valueOf(weight) - 1;
         this.isAbbr = StringHelper.isAbbreviated(outV.getVal().length());
         this.isBeforeDot = StringHelper.isBeforeDot(outV.getVal().length(), inV.getVal(), order);
     }
@@ -171,11 +174,6 @@ public class TokenE extends E implements Cloneable{
     @Override
     public String toString() {
         return String.format("E[%s] %s -%s-> %s", super.getType(), super.getInV().getVal(), namePart, super.getOutV().getVal());
-    }
-
-    @Override
-    public TokenE clone() {
-        return new TokenE(this);
     }
 
     @Override

@@ -13,6 +13,7 @@ public class E {
         REF_REF(0, 0),
         REF_TKN(0, 1),
         TKN_SIM(1, 2),
+        TKN_NCK(1, 2),
         SIM_ABR(2, 3);
 
         private int inLevel;
@@ -29,6 +30,24 @@ public class E {
          * @return  boolean value of isInterLevel
          */
         public boolean isInterLevel() {return inLevel != outLevel;}
+
+        /**
+         * Gets the level of source vertex
+         *
+         * @return int value of source vertex level
+         */
+        public int getInLevel() {
+            return inLevel;
+        }
+
+        /**
+         * Gets the level of destination vertex
+         *
+         * @return int value of destination vertex level
+         */
+        public int getOutLevel() {
+            return outLevel;
+        }
 
         public static Type getTypeByLevels(int inLevel, int outLevel){
             checkArgument(inLevel >= 0 && inLevel <= 2, "InLevel argument was %s but expected in range [0, 2].", inLevel);

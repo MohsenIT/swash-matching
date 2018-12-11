@@ -12,6 +12,9 @@ import helper.GraphAnalysis;
 import logic.matching.ClusterProfile;
 import logic.matching.MatchResult;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -74,12 +77,12 @@ public class MessagePassing {
         return this;
     }
 
-    public Map<V, List<Candidate>> aggRefVsTerminal(int minCommonMessages) {
+    public Map<RefV, List<Candidate>> aggRefVsTerminal(int minCommonMessages) {
         Map<RefV, Map<RefV, List<Message>>> result = currentPosition.keySet().stream()
                 .collect(Collectors.groupingBy(Message::getDestRefV,
                         Collectors.groupingBy(Message::getOriginRefV)));
 
-        Map<V, List<Candidate>> strongMap = HashObjObjMaps.newMutableMap();
+        Map<RefV, List<Candidate>> strongMap = HashObjObjMaps.newMutableMap();
         for (Map.Entry<RefV, Map<RefV, List<Message>>> dst: result.entrySet()) {
             Double simThreshold = getSimilarityThreshold(dst);
             List<Candidate> candidateList = new ArrayList<>();
@@ -143,7 +146,8 @@ public class MessagePassing {
      * @param candidates Map of the V vertex to their candidates
      * @return Map of representative V (currently most frequent) to connected components Vs
      */
-    public void greedyClustering(Map<V, List<Candidate>> candidates) {
+    @SuppressWarnings("Duplicates")
+    public void greedyClustering(Map<RefV, List<Candidate>> candidates) throws FileNotFoundException, UnsupportedEncodingException {
         // add similarity edges between tokens (REF_REF edges)
         candidates.values().stream().flatMap(Collection::stream).forEach(c -> {
             if(c.getDestRefV() != c.getOriginRefV())
@@ -160,7 +164,8 @@ public class MessagePassing {
 
         // BFS traversal on REF_REF edges
         Map<RefV, Boolean> refsToNotVisited = sortedVs.stream().collect(Collectors.toMap(Function.identity(), x -> true, (a,b)->a, LinkedHashMap::new));
-        long maxId = g.getVs().keySet().stream().max(Comparator.naturalOrder()).orElse(1L);
+        PrintWriter fpWriter = new PrintWriter("D:\\University\\PHDResearch\\Dev\\FP.tsv", "UTF-8");
+        PrintWriter fnWriter = new PrintWriter("D:\\University\\PHDResearch\\Dev\\FN.tsv", "UTF-8");
         for (RefV v : refsToNotVisited.keySet()) {
             if (!refsToNotVisited.get(v))
                 continue;
@@ -174,7 +179,7 @@ public class MessagePassing {
                     MatchResult result = clusterProfile.match(adj);
                     boolean isConsistent = result.isConsistent();
                     if(!isConsistent){
-                        result.canBecomeConsistent();
+                        isConsistent = result.canBecomeConsistent();
                     }
                     if(isConsistent) {
                         queue.add(adj);
@@ -182,12 +187,15 @@ public class MessagePassing {
                         adj.replaceReferenceCluster(u);
                         clusterProfile.merge(result);
                     }
-                    if(isConsistent && u.getRefResolvedIdV() != adj.getRefResolvedIdV()){
-                        System.out.printf("%s\t%s\t%s%n", u.getVal(), adj.getVal(), clusterProfile);
-                    }
+
+//                    if(isConsistent && u.getRefResolvedIdV() != adj.getRefResolvedIdV())
+//                        fpWriter.printf("%s\t%s\t%s%n", u.getVal(), adj.getVal(), clusterProfile);
+//                    else if(!isConsistent && u.getRefResolvedIdV() == adj.getRefResolvedIdV())
+//                        fnWriter.printf("%s\t%s\t%s%n", u.getVal(), adj.getVal(), clusterProfile);
                 });
             }
         }
+        fnWriter.close(); fpWriter.close();
     }
     //endregion
 

@@ -1,0 +1,731 @@
+Id	 Label	 Weight	 Res_Id
+1955	 m. littman	 2	 6180
+1889	 yezdi lashkari	 3	 5770
+1438	 g.w. cottrell	 2	 2160
+2618	 john wilkes	 1	 11320
+1610	 m. georgeff	 2	 3540
+1482	 sven delmas	 1	 2500
+1406	 j.a. clouse	 2	 1890
+2419	 a. smith	 1	 9790
+1636	 k. golden	 4	 3740
+1545	 david w. etherington	 1	 3020
+1234	 m. balachandran	 1	 530
+1987	 sridhar mahadevan	 3	 6420
+1867	 k. n. kutulakos	 1	 5600
+1657	 adam grove	 1	 3940
+1547	 oren etzioni	 9	 3030
+1877	 p. laird	 2	 5680
+1946	 lin l.-j.	 1	 6140
+1611	 m.p. georgeff	 2	 3540
+2594	 r. weiss	 1	 11180
+2620	 c. williams	 3	 11340
+1931	 kai li	 2	 6110
+1449	 r. crites	 2	 2220
+1588	 eugene c. freuder	 1	 3360
+1575	 kenneth forbus	 1	 3240
+1502	 m. dorigo	 5	 2670
+1474	 thomas dean	 2	 2420
+1783	 leslie pack kaelbling	 4	 5000
+2317	 j. sandberg.	 1	 9060
+1810	 j. keane.	 2	 5170
+2173	 pearl j.	 1	 7900
+1413	 j. cohen	 3	 1950
+2652	 j. yang	 1	 11560
+1904	 john j. leggett	 1	 5880
+1489	 l. de raedt	 4	 2570
+1637	 keith golden	 1	 3740
+2407	 s. singh	 4	 9710
+1760	 a. jain	 1	 4830
+1513	 c. dubnicki	 7	 2740
+2162	 d. patterson	 1	 7830
+2343	 j. h. schmidhuber	 2	 9220
+2400	 r. g. simmons	 1	 9660
+2672	 d. m. zhang	 1	 11740
+2623	 michael williamson	 1	 11350
+1943	 l-j lin	 1	 6140
+2080	 andrew w. moore	 3	 7110
+1989	 m. l. maher	 2	 6440
+1600	 l. m. gambardella	 4	 3450
+1663	 gullapalli v.	 1	 3990
+1239	 d. h. ballard	 3	 560
+2500	 s. thrun	 8	 10420
+1490	 t. d. derose	 1	 2580
+2609	 steven whitehead	 2	 11250
+2077	 u.montanari	 1	 7100
+1466	 s. davies	 2	 2350
+2482	 m. tan	 2	 10300
+1193	 c. w. anderson	 2	 260
+1233	 m. b. balachandran	 1	 530
+2488	 sukoya tawaratumida	 1	 10320
+2208	 e. plaza	 5	 8130
+1393	 lonnie chrisman	 3	 1800
+1890	 j. - l. lassez	 4	 5780
+2141	 t. oren	 1	 7660
+2186	 alex pentland	 2	 7960
+2028	 j. mcclelland	 2	 6740
+1230	 l.c. baird	 2	 510
+2657	 k. b. yoon	 1	 11610
+1508	 n. r. draper	 1	 2720
+2568	 a. walker	 1	 10970
+1245	 bankert r.l.	 1	 600
+1183	 j. allen	 1	 180
+1263	 peter van beek	 2	 720
+2430	 g. smolka	 1	 9850
+1321	 s. j bradtke	 1	 1200
+2330	 r schank	 1	 9140
+2574	 d. waltz	 21	 11020
+2398	 r. simmons	 4	 9660
+1269	 kristin p. bennett	 1	 780
+1737	 colin howson	 1	 4610
+1994	 dennis w. manchak	 1	 6480
+2207	 e plaza	 1	 8130
+1702	 j. l. hennessy	 1	 4320
+2665	 x. yu	 1	 11680
+2067	 d. p. mitchell	 1	 7040
+2442	 c. stanfill	 17	 9960
+1182	 b.p allen	 1	 170
+1178	 r. aleliunas	 1	 140
+1888	 y. lashkari	 4	 5770
+1240	 ballard d.	 1	 560
+1442	 m. t. cox	 1	 2180
+2422	 b. smith	 1	 9815
+1297	 matthias blumrich	 2	 1030
+1403	 p. clark	 1	 1880
+1884	 a. lansky	 2	 5740
+1995	 mangasarian ol	 3	 6490
+2446	 craig stanfill	 1	 9960
+2577	 d. l. waltz	 1	 11020
+1984	 s. mahadevan	 23	 6420
+2523	 eiji uchibe	 3	 10620
+2266	 c. k. riesbeck	 2	 8610
+2003	 j marks	 1	 6540
+2575	 david waltz	 2	 11020
+1633	 randy goebel	 4	 3720
+2525	 p. urbach	 4	 10640
+2526	 peter urbach	 1	 10640
+1163	 a. l. abbott	 1	 20
+1367	 paul r. calder.	 1	 1580
+1754	 t. jaakkola	 7	 4780
+1626	 matthew ginsberg	 2	 3660
+2019	 maxwell jt	 2	 6670
+1581	 s. fox	 1	 3300
+1160	 agnar aamodt	 3	 10
+2169	 t. payne	 1	 7880
+1983	 maes p	 1	 6410
+1773	 m. johnston	 3	 4930
+2011	 b. masand	 4	 6610
+2596	 dan weld	 1	 11200
+1164	 m. r. abbott	 1	 30
+2005	 k. marriott	 8	 6550
+1777	 m. i. jordan	 5	 4970
+2294	 s. rosenschein	 1	 8860
+1762	 david v. james	 1	 4850
+1402	 herbert h. clark	 1	 1870
+1266	 s. bell	 1	 750
+2506	 v. torre	 1	 10480
+1401	 eve v. clark	 1	 1860
+1161	 a aamodt	 1	 10
+2056	 r. miikkulainen	 5	 6950
+2298	 r. ross	 1	 8900
+2642	 w. h. wolberg	 1	 11480
+1346	 b.g. buchanan	 1	 1410
+2410	 satinder pal singh	 3	 9710
+2020	 maxwell j.t.	 1	 6670
+1932	 m. li	 2	 6120
+2246	 i. v. ramakrishnan	 1	 8470
+1257	 b. bauer	 1	 670
+2639	 l. e. wixson	 1	 11470
+1689	 m. p. harper	 5	 4210
+1959	 lok tin liu	 2	 6210
+2129	 anthony ohare	 1	 7560
+2635	 a. witkin	 1	 11450
+1599	 l.m. gambardella	 1	 3450
+1949	 gordon linoff	 1	 6150
+1980	 maes p.	 1	 6410
+2215	 david poole	 2	 8180
+1793	 takeo kanade	 1	 5070
+1509	 m. drummond	 5	 2730
+1688	 j. s. harper	 2	 4200
+1695	 m. heger	 1	 4260
+2492	 c. k. tham	 1	 10370
+1405	 j. clouse	 6	 1890
+1871	 r.c. lacher	 1	 5630
+1768	 christopher f. joerg	 2	 4910
+2619	 b. williams	 1	 11330
+2078	 a.w. moore	 2	 7110
+1918	 k. r. levi	 1	 6000
+1925	 l. lewis	 1	 6070
+1979	 p. maes	 13	 6410
+1923	 j. levy	 1	 6050
+2251	 anand s. rao	 4	 8510
+1962	 z. li	 2	 6240
+2062	 p. j. millington	 1	 6990
+2522	 e. uchibe	 6	 10620
+2597	 d. weld	 22	 11200
+1841	 j. kolodner	 6	 5440
+1204	 yuichiro anzai	 2	 310
+1891	 j. - l lassez	 1	 5780
+2313	 jim sanborn	 1	 9040
+2583	 kenneth wauchope	 3	 11090
+1769	 m. s. john	 1	 4920
+1303	 a. borgida	 2	 1080
+2600	 d. s. weld	 1	 11200
+2538	 w van de velde	 1	 10710
+2595	 s. weiss	 1	 11190
+2486	 sukoya tawaratsumida	 3	 10320
+1231	 l. c. baird	 3	 510
+2530	 p. e. utgoff	 1	 10650
+1563	 r. e. fikes	 1	 3140
+2406	 satinder p. singh	 2	 9710
+1939	 long ji lin	 1	 6140
+2081	 a. moore	 2	 7110
+2363	 terrence j. sejnowski	 1	 9400
+2252	 a. s. rao	 1	 8510
+2520	 b. tversky	 1	 10600
+1823	 j. kim	 1	 5300
+2321	 v. saraswat	 1	 9100
+2158	 p. patel-schneider	 6	 7810
+2645	 j.-r. wu	 1	 11500
+2402	 h. a. simon	 1	 9680
+1827	 jonathan jay king	 1	 5320
+1848	 kozierok r.	 1	 5470
+1258	 m. bauer	 1	 680
+2339	 jurgen h. schmidhuber	 1	 9220
+2270	 r. reiter	 2	 8640
+1625	 matthew l. ginsberg	 1	 3660
+1426	 jonathan connell	 3	 2040
+1645	 j. grant	 1	 3820
+2061	 peter j. millington	 1	 6990
+1511	 cezary dubnicki	 3	 2740
+1203	 y. anzai	 3	 310
+2507	 torre v.	 1	 10480
+1799	 kaplan r.m.	 1	 5100
+1253	 j. barwise	 1	 640
+1640	 martin c. golumbic	 1	 3770
+1394	 l. chrisman	 7	 1800
+2222	 r. w. prager	 1	 8230
+1252	 a. g barto	 1	 630
+2423	 d. a. smith	 1	 9820
+2338	 j. schmidhuber	 12	 9220
+1221	 paolo avesani	 1	 430
+1525	 p.; edwards	 1	 2860
+2167	 z. pawlak	 1	 7870
+1359	 m burstein	 1	 1520
+1902	 j. s. lee	 1	 5860
+1850	 robin kozierok	 2	 5470
+1556	 adam farquhar	 1	 3100
+1422	 robert j. collins	 2	 2020
+2079	 a. w. moore	 23	 7110
+2200	 a. b. philips	 2	 8070
+1945	 l. j. lin	 2	 6140
+1298	 m. blumrich	 7	 1030
+2107	 bernhard nebel	 2	 7360
+2512	 roger traylor	 1	 10530
+2340	 juergen schmidhuber	 1	 9220
+1288	 thomas o. binford	 1	 950
+1981	 pattie maes	 6	 6410
+2580	 c. ward	 1	 11050
+1318	 r. j. brachman	 2	 1180
+1471	 j. dean	 1	 2400
+1450	 r.h. crites	 1	 2220
+1792	 t. kanade	 1	 5070
+2356	 d. g. schwartz	 1	 9340
+1913	 v. lesser	 2	 5950
+1249	 a. barto	 2	 630
+2625	 r.j. williams	 1	 11360
+1667	 john gurney	 1	 4020
+2329	 r. s. schank	 2	 9140
+1694	 matthias heger	 1	 4260
+1313	 j. a. boyan	 7	 1170
+2610	 whitehead s.	 1	 11250
+1928	 h-y.s. li	 1	 6100
+1557	 steven feiner	 1	 3110
+2070	 tom mitchell	 1	 7050
+1903	 s. lee	 2	 5870
+2403	 h. simon	 1	 9680
+2288	 t. rogers	 1	 8810
+2163	 d. a. patterson	 1	 7830
+1491	 t. derose	 1	 2580
+2392	 e. shortliffe	 1	 9620
+1456	 z. cui	 3	 2260
+2354	 a. schwartz	 7	 9330
+1846	 r kozierok	 2	 5470
+2076	 u. montanari	 3	 7100
+2375	 stuart c. shapiro	 1	 9500
+1322	 s. j. bradtke	 4	 1200
+1849	 robyn kozierok	 1	 5470
+1184	 james f. allen	 1	 180
+1320	 s.j. bradtke	 1	 1200
+1162	 a. aamodt	 9	 10
+1742	 g.w. humphreys	 1	 4660
+1570	 m. l. fisher	 1	 3200
+1524	 p. edwards	 1	 2860
+2082	 d. e. moriarty	 5	 7120
+1216	 c. g. atkeson	 11	 410
+1580	 b. fox	 1	 3290
+1988	 m. j. maher	 1	 6440
+2168	 zdzislaw pawlak	 1	 7870
+2425	 d. smith	 1	 9823
+1345	 g. b. buchanan	 1	 1410
+1856	 b.j.a krose	 1	 5520
+1717	 karl hoernig	 1	 4450
+1982	 pattie maes,	 1	 6410
+1817	 r. kelly	 1	 5240
+1415	 philip r. cohen,	 1	 1960
+2304	 daniel m. russell	 1	 8960
+2187	 a. pentland	 4	 7960
+1348	 m. buchanan	 1	 1430
+1382	 d. chapman	 6	 1710
+2264	 c. riesbeck	 2	 8610
+2674	 y. zhang	 1	 11760
+2209	 enric plaza	 1	 8130
+2131	 t. ohko	 3	 7570
+1347	 b. buchanan	 1	 1410
+2181	 j.s. penberthy	 2	 7940
+1446	 j. m. crawford	 1	 2210
+1627	 f. girosi	 1	 3670
+1941	 long-li lin	 1	 6140
+1726	 h.-c. hoppe	 1	 4540
+2380	 jude shavlik	 1	 9550
+1683	 r. m. haralick	 3	 4170
+1445	 l. craig	 1	 2200
+2408	 s. p. singh	 5	 9710
+1947	 l lin	 1	 6140
+1512	 cezary dubnick	 1	 2740
+2275	 francesco ricci	 3	 8690
+2355	 anton schwartz	 1	 9330
+1515	 t. duchamp	 1	 2770
+2170	 t. r. payne	 1	 7880
+2018	 maxwell j. t.	 1	 6670
+1187	 richard alpert	 1	 200
+1360	 burstein m. h.	 1	 1520
+1954	 littman m.	 1	 6180
+2537	 w. van de velde	 1	 10710
+1444	 r.d. coyne	 1	 2190
+2675	 j. zhao	 5	 11770
+1317	 ronald j. brachman	 1	 1180
+1412	 p. codognet	 4	 1940
+1685	 m. e. harmon	 1	 4180
+2052	 robert a. meyer	 1	 6910
+2556	 paul m. b. vitanyi	 1	 10860
+2326	 roger schank	 1	 9140
+2253	 a.s. rao	 1	 8510
+1589	 e. freuder	 3	 3360
+1334	 a. brink	 1	 1310
+2581	 w. ward	 2	 11060
+2426	 d.c. smith	 1	 9825
+2640	 w. wolberg	 1	 11480
+1544	 d. w. etherington	 1	 3020
+2172	 j. pearl	 20	 7900
+2160	 r. patil	 6	 7820
+2529	 p.e. utgoff	 2	 10650
+1211	 m. asada	 15	 380
+2533	 d. valentin	 1	 10670
+2258	 y. ravin	 1	 8560
+2201	 a. philips	 1	 8070
+2176	 e. p. d. pednault	 1	 7910
+1368	 p. calder.	 1	 1580
+2306	 s.j. russell	 1	 8970
+1583	 a. u frank	 1	 3310
+2047	 metral m.	 1	 6900
+1977	 roger maddux	 1	 6390
+1733	 koh hosoda	 6	 4580
+2527	 paul e. utgoff	 1	 10650
+1419	 a. g. cohn	 3	 1990
+1560	 e. felten	 7	 3120
+1549	 s. everett	 1	 3040
+2031	 d. mcdermott	 2	 6760
+2064	 s. minton	 10	 7020
+2115	 j. thomas ngo	 1	 7430
+1199	 h. j. antonisse	 1	 280
+1200	 jim antonisse	 2	 280
+2183	 j. s. penberthy	 2	 7940
+1601	 m. j. garca de la banda garca	 1	 590
+1998	 o mangasarian	 1	 6490
+1590	 e. c. freuder	 1	 3360
+2399	 r.g. simmons	 1	 9660
+1217	 christopher g. atkeson	 1	 410
+1898	 c. lawrence	 2	 5830
+1687	 p. harmon	 1	 4190
+2584	 k. wauchope	 2	 11090
+1315	 j.a. boyan	 1	 1170
+2217	 brian potter	 1	 8200
+2676	 jieyu zhao	 2	 11770
+2383	 jude w. shavlik	 1	 9550
+1510	 mark drummond	 2	 2730
+2032	 j. mcdermott	 1	 6770
+1169	 david h. ackley	 2	 70
+1384	 david chapman	 1	 1710
+1730	 e. j. horvitz	 1	 4570
+2161	 r. s. patil	 1	 7820
+1851	 kozierok r	 1	 5470
+2043	 m. mesarina	 1	 6860
+2615	 m. a. wiering	 1	 11290
+2185	 m.d. pendrith	 1	 7950
+1917	 g. levi	 6	 5990
+1842	 j. l. kolodner	 4	 5440
+1826	 jonathan j. king	 1	 5320
+1910	 n. lesh	 6	 5940
+1197	 jim  antonisse	 1	 280
+2519	 a. tversky	 1	 10590
+2647	 s. - q. wu,	 1	 11510
+1448	 crites r.h.	 1	 2220
+1179	 romas aleliunas	 1	 140
+2606	 s.d. whitehead	 7	 11250
+1529	 m.j. egenhofer	 1	 2880
+2487	 s. tawaratumida	 4	 10320
+2677	 z. zhong	 1	 11780
+1778	 m. jordan	 1	 4970
+1469	 l. davis	 3	 2380
+1582	 a. u. frank	 2	 3310
+2342	 j. h. schmidhuber.	 1	 9220
+1770	 m. st . john	 1	 4920
+2578	 m. wang	 1	 11030
+1439	 g. cottrell	 1	 2160
+1316	 r. brachman	 1	 1180
+1451	 r. h. crites	 5	 2220
+2083	 david e. moriarty	 1	 7120
+2493	 c. tham	 1	 10370
+1646	 s. a. grant	 2	 3830
+2159	 p. f. patel-schneider	 1	 7810
+1935	 long-ji lin	 8	 6140
+1543	 d. etherington	 3	 3020
+2593	 g. weiss	 1	 11170
+1802	 michael kass	 1	 5130
+1416	 philip r. cohen	 1	 1960
+1944	 longji lin	 1	 6140
+1712	 geoffrey e. hinton	 1	 4410
+1883	 amy l. lansky	 1	 5740
+1836	 sven koenig	 1	 5410
+2065	 steven minton	 1	 7020
+2552	 m. vilain	 2	 10840
+1168	 d. h. ackley	 2	 70
+1383	 david j. chapman	 1	 1710
+1612	 m. p. georgeff	 1	 3540
+1514	 d. duchamp	 1	 2760
+2614	 m. wiering	 1	 11290
+1400	 e. v. clark	 1	 1860
+2458	 p. j. stuckey	 1	 10090
+1876	 philip laird	 1	 5680
+1243	 m. garca de la banda	 5	 590
+1860	 b. kuipers	 4	 5540
+2305	 s. russell	 6	 8970
+1443	 r. d. coyne	 1	 2190
+1362	 r. byrd	 1	 1540
+2598	 daniel weld	 8	 11200
+2069	 tom m. mitchell	 2	 7050
+1354	 h.-j. burckert	 1	 1480
+2177	 e.p.d. pednault	 1	 7910
+1780	 michael i. jordan	 3	 4970
+1335	 k. h.brink	 1	 1320
+2024	 r. andrew mccallum	 4	 6710
+1942	 l-j lin.	 1	 6140
+2287	 rogers p.	 1	 8800
+1761	 r. jain	 2	 4840
+1937	 l. lin	 12	 6140
+2621	 c. p. williams	 1	 11340
+1951	 m. linton	 1	 6160
+1289	 lawrence birnbaum	 1	 960
+2359	 p. d. scott	 1	 9370
+2049	 m. e. metral	 1	 6900
+1912	 v. r. lesser	 2	 5950
+1226	 f. bacchus	 3	 470
+2443	 c. w. stanfill	 2	 9960
+1265	 p.c. bell	 1	 740
+1548	 stephanie everett	 2	 3040
+1755	 tommi jaakkola	 3	 4780
+2346	 f. schneider	 1	 9250
+2391	 e. h. shortliffe	 2	 9620
+2418	 a.f.m. smith	 1	 9790
+1808	 henry kautz	 1	 5150
+1701	 j. hennessy	 1	 4320
+1785	 l. kaelbling	 3	 5000
+1273	 h.r. berenji	 2	 800
+2214	 d. poole	 2	 8180
+2572	 william a. wallace	 1	 11000
+2637	 lambert wixson	 1	 11470
+1473	 t. dean	 2	 2420
+1805	 henry a. kautz	 2	 5150
+2012	 brij masand	 1	 6610
+1492	 t. g. dietterich	 4	 2590
+2051	 r. a. meyer	 3	 6910
+1527	 m. egenhofer	 3	 2880
+1843	 janet l. kolodner	 2	 5440
+1806	 h. kautz	 2	 5150
+2130	 a. ohare	 2	 7560
+2571	 r. wallace	 2	 10990
+1732	 k. hosoda	 15	 4580
+2648	 y. wu	 2	 11520
+2037	 d. mckay	 8	 6810
+1727	 h. hoppe	 1	 4540
+2457	 p. stuckey	 3	 10090
+2671	 d. zhang	 2	 11740
+2004	 joe marks	 1	 6540
+2202	 d.b philips	 1	 8080
+2269	 raymond reiter	 1	 8640
+1225	 fahiem bacchus	 2	 470
+1358	 mark h. burstein	 1	 1520
+2362	 t. j. sejnowski	 2	 9400
+2381	 j. w. shavlik	 1	 9550
+2634	 andrew witkin	 1	 11450
+1310	 craig boutilier	 1	 1140
+1493	 t. dietterich	 2	 2590
+1736	 c. howson	 4	 4610
+1807	 h.a. kautz	 1	 5150
+1558	 edward w. felten	 3	 3120
+2528	 p. utgoff	 6	 10650
+1574	 k. forbus	 1	 3240
+1536	 g. elliot	 2	 2940
+2558	 j. vlissides	 1	 10870
+1948	 g. linoff	 4	 6150
+1840	 daphne koller	 1	 5430
+1172	 d. w. aha	 4	 90
+1417	 robin cohen	 1	 1970
+1559	 edward felten	 2	 3120
+1713	 g. hinton	 4	 4410
+1837	 s. koenig	 2	 5410
+2247	 a ram	 1	 8480
+2485	 s. tawaratsumida	 11	 10320
+2576	 waltz d.	 1	 11020
+1220	 p. avesani	 3	 430
+1327	 k branting	 1	 1240
+1774	 v.s. johnston	 1	 4940
+1248	 barto a.g.	 1	 630
+1930	 k. li	 7	 6110
+2008	 richard martin	 2	 6580
+1569	 d. fisher	 1	 3190
+1825	 j. j. king	 5	 5320
+1429	 s. e. conry	 3	 2080
+2607	 s. d. whitehead	 6	 11250
+1628	 girosi f.	 1	 3670
+1201	 j antonisse	 1	 280
+1950	 mark a. linton	 1	 6160
+1892	 j.-l. lassez	 1	 5780
+2050	 max metral	 3	 6900
+2471	 sutton r. s.	 1	 10190
+1418	 william w. cohen	 1	 1980
+1741	 b. humphreys	 1	 4650
+2057	 risto miikkulainen	 1	 6950
+1811	 m. t. keane	 1	 5180
+1731	 eric j. horvitz	 2	 4570
+2673	 w. zhang	 6	 11750
+2397	 reid g. simmons	 1	 9660
+2358	 m. l. scott	 3	 9360
+2382	 j. shavlik	 4	 9550
+2119	 nicholas negroponte	 1	 7470
+2409	 s.p. singh	 2	 9710
+1507	 n. r. draper.	 1	 2720
+1566	 t. finin	 9	 3160
+2226	 a. prince	 3	 8270
+1296	 matthias a. blumrich	 2	 1030
+1250	 a.g. barto	 2	 630
+2557	 john m. vlissides	 1	 10870
+1460	 dambrosio	 1	 2290
+2599	 d. weld,	 1	 11200
+1238	 dana h. ballard	 2	 560
+2468	 r.s. sutton	 5	 10190
+1870	 r. c. lacher	 1	 5630
+1528	 m. j. egenhofer	 4	 2880
+2532	 d.valentin	 1	 10670
+1468	 c. o. davis	 1	 2370
+1624	 m. ginsberg	 2	 3660
+2042	 malena mesarina	 1	 6860
+2068	 t. mitchell	 2	 7050
+2284	 m. b. ring	 4	 8770
+1703	 dana s. henry	 2	 4330
+1642	 g. j. gordon	 1	 3790
+1268	 b. bennett	 2	 770
+1936	 l.-j. lin	 6	 6140
+1519	 c.r. dyer	 1	 2810
+1822	 d.-w. kim	 1	 5290
+2259	 yael ravin	 1	 8560
+1453	 j. l. crowley	 1	 2240
+1501	 dorigo m.	 1	 2670
+1763	 c. z. janikow	 1	 4860
+1454	 j. crowley	 1	 2240
+1803	 m kass	 2	 5130
+2245	 c. r. ramakrishnan	 1	 8460
+2499	 s.b. thrun	 1	 10420
+2661	 h. yoshikawa	 1	 11640
+1251	 a. g. barto	 4	 630
+1795	 keiji kanazawa	 2	 5080
+2315	 j. sandberg	 5	 9060
+1421	 gregg collins	 1	 2010
+1198	 j. antonisse	 3	 280
+1546	 o. etzioni	 19	 3030
+2231	 william pugh	 1	 8310
+2605	 steven d. whitehead	 2	 11250
+2123	 s. noda	 15	 7510
+1771	 m. f. st . john	 2	 4920
+2328	 r. c. schank	 1	 9140
+2254	 rajesh p.n. rao	 1	 8520
+2579	 x. wang	 1	 11040
+2227	 a. s. prince	 1	 8270
+2293	 s. j. rosenschein	 2	 8860
+2470	 r. sutton	 3	 10190
+1344	 b. g. buchanan	 2	 1410
+1894	 anthony t. laundrie	 1	 5800
+1247	 r.l. barron	 1	 620
+1212	 minoru asada	 6	 380
+2218	 b. potter	 1	 8200
+2658	 k.b. yoon	 1	 11610
+1866	 k.n. kutulakos	 1	 5600
+2622	 m. williamson	 6	 11350
+1215	 c.g. atkeson	 1	 410
+2327	 r. schank	 5	 9140
+2048	 m. metral	 3	 6900
+1173	 aha d.w.	 1	 90
+1911	 neal lesh	 1	 5940
+1186	 r. alpert	 6	 200
+1353	 hans-jurgen burckert	 1	 1480
+2624	 r. j. williams	 6	 11360
+1957	 michael l. littman	 4	 6180
+1772	 mark d. johnston	 1	 4930
+2092	 b.a. myers	 3	 7220
+1472	 n. dean	 1	 2410
+2373	 d. shapiro	 1	 9490
+1634	 r. goebel	 1	 3720
+2555	 p. vitanyi	 1	 10860
+2316	 jonathon sandberg	 1	 9060
+2164	 maes pattie,	 1	 6410
+1940	 l-j. lin	 5	 6140
+1565	 timothy w. finin	 1	 3160
+2178	 e. pednault	 2	 7910
+2483	 ming tan	 2	 10300
+2646	 s. - q. wu	 1	 11510
+2469	 r. s. sutton	 13	 10190
+1272	 h. berenji	 6	 800
+2196	 dennis perzanowski	 3	 8050
+2237	 2. l. de raedt	 1	 2570
+2148	 m. overmars.	 1	 7720
+1953	 m. l. littman	 10	 6180
+1314	 j. boyan	 1	 1170
+1609	 michael p. georgeff	 5	 3540
+2124	 shoichi noda	 4	 7510
+1430	 susan e. conry	 1	 2080
+2395	 g. silverstein	 1	 9650
+2142	 tim oren	 1	 7660
+2199	 andrew b. philips	 1	 8070
+1576	 roger ford	 1	 3250
+2182	 j. penberthy	 1	 7940
+2374	 s. shapiro	 1	 9500
+1447	 j.m. crawford	 1	 2210
+1459	 b. dambrosio	 2	 2290
+1196	 antonisse	 1	 280
+2295	 b.h. ross	 1	 8870
+2608	 s. whitehead	 5	 11250
+2585	 kenneth wauchope,	 2	 11090
+1828	 r. king	 1	 5330
+1990	 m.l. maher	 1	 6440
+1659	 t. r. gruber	 2	 3960
+1966	 z. - q. luo	 3	 6290
+1304	 alex borgida	 1	 1080
+1952	 w. lin	 1	 6170
+1798	 kaplan rm	 2	 5100
+2516	 m. turk	 4	 10560
+1922	 a. y. levy	 1	 6040
+1779	 m.i. jordan	 1	 4970
+1170	 d. ackley	 1	 70
+2396	 g silverstein	 2	 9650
+1686	 mance e. harmon	 1	 4180
+1972	 douglas j. macintosh	 1	 6340
+2132	 takuya ohko	 2	 7570
+2427	 t. e. smith	 1	 9830
+1678	 steven hanks	 1	 4120
+1933	 ming li	 1	 6120
+2221	 john prager	 1	 8220
+1218	 c. atkeson	 1	 410
+2498	 sebastian b. thrun	 2	 10420
+2054	 z. michalewicz	 1	 6930
+2025	 r. a. mccallum	 4	 6710
+2660	 chad yoshikawa	 2	 11630
+1677	 s. hanks	 9	 4120
+2006	 23 . k. marriott	 1	 6550
+1363	 roy byrd	 1	 1540
+2341	 jurgen schmidhuber	 1	 9220
+1660	 t. gruber	 6	 3960
+2197	 d. perzanowski	 2	 8050
+1414	 p.r. cohen	 1	 1960
+2641	 wolberg wh	 1	 11480
+2551	 marc b. vilain	 2	 10840
+1407	 j. a. clouse	 1	 1890
+2036	 donald p. mckay	 2	 6810
+2515	 matthew turk	 2	 10560
+1555	 a. farquhar	 2	 3100
+1520	 m. e. dyer	 1	 2820
+1673	 dan halperin	 1	 4080
+1794	 k. kanazawa	 2	 5080
+1467	 t.r. davies	 1	 2360
+2570	 richard j. wallace	 1	 10990
+2569	 j. walker	 1	 10980
+1441	 m t cox	 1	 2180
+1997	 o.l. mangasarian	 2	 6490
+1370	 y cao	 1	 1600
+1246	 a.r. barron	 1	 610
+2643	 w.h. wolberg	 1	 11480
+1971	 d. j. macintosh	 2	 6340
+1371	 y. cao	 1	 1600
+1271	 h. r. berenji	 4	 800
+2248	 a. ram	 3	 8480
+2149	 mark h. overmars	 1	 7720
+1396	 eugene c. ciccarelli	 1	 1820
+2651	 g. yang	 1	 11550
+1420	 h. cohn	 1	 2000
+2662	 m. yoshikawa	 2	 11650
+1816	 a. kelly	 1	 5230
+2220	 j. prager	 1	 8220
+1684	 r. haralick	 3	 4170
+2429	 gert smolka	 1	 9850
+2075	 ugo montanari	 1	 7100
+2091	 b. myers	 1	 7220
+1326	 karl branting	 3	 1240
+1857	 b.j.a. krose	 1	 5520
+2554	 p. m. vitanyi	 1	 10860
+2364	 t. sejnowski	 1	 9400
+1235	 m. b. balachandran,	 1	 530
+1924	 c. lewis	 1	 6060
+2548	 verri a.	 1	 10810
+1404	 jeffery a. clouse	 1	 1890
+2638	 lambert e. wixson	 1	 11470
+2384	 j.w. shavlik	 1	 9550
+1996	 o. l. mangasarian	 3	 6490
+2029	 j. l. mcclelland	 2	 6740
+2444	 stanfill c.	 1	 9960
+2495	 c. g. thomas	 3	 10390
+2420	 b c smith	 1	 9810
+1885	 a.l. lansky	 1	 5740
+1929	 kai li.	 1	 6110
+1847	 r. kozierok	 7	 5470
+2229	 kai li. protected	 1	 6110
+1194	 c. anderson	 4	 260
+2184	 m. pendrith	 1	 7950
+2283	 mark ring	 1	 8770
+1859	 b. j. kuipers	 2	 5540
+1506	 d. draper	 6	 2710
+1535	 g. l. elliot	 2	 2940
+1424	 j. connell	 18	 2040
+1700	 d. hennessy	 1	 4310
+2322	 v. a. saraswat	 2	 9100
+2174	 judea pearl	 6	 7900
+1562	 r. fikes	 7	 3140
+1262	 p. van beek	 5	 720
+2276	 f. ricci	 3	 8690
+1797	 kaplan r. m.	 1	 5100
+1839	 d. koller	 1	 5430
+1958	 j. liu	 2	 6200
+2421	 b. m. smith	 6	 9815
+1784	 l. p. kaelbling	 12	 5000
+2114	 j. t. ngo	 1	 7430
+1985	 mahadevan s.	 1	 6420
+1711	 g. e. hinton	 5	 4410
+1244	 r. l. bankert	 3	 600
+2424	 david smith	 2	 9823
+1254	 jon barwise	 1	 640
+1664	 v. gullapalli	 3	 3990
+2118	 h. nicholas	 1	 7460
+1411	 c. codognet	 1	 1930
+1938	 l.j. lin	 4	 6140
+2106	 b. nebel	 5	 7360
+2175	 edwin p.d. pednault	 4	 7910
+1264	 b. bell	 1	 730
+2547	 a. verri	 1	 10810

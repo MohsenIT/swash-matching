@@ -9,13 +9,21 @@ import dao.vertex.ClusterV;
 import dao.vertex.ElementV;
 import dao.vertex.RefV;
 import dao.vertex.V;
+import de.zedlitz.phonet4java.Coder;
+import de.zedlitz.phonet4java.Phonet2;
+import de.zedlitz.phonet4java.Soundex;
+import de.zedlitz.phonet4java.SoundexRefined;
 import helper.IO;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 public class G {
 
@@ -196,8 +204,6 @@ public class G {
 
         }
         System.out.println("\tInitial Name's part is assigned to REF_TKN edges.");
-//        List<TokenE> eList = es.stream().filter(e -> e.getType() == E.Type.REF_TKN).map(e -> (TokenE) e).collect(Collectors.toList());
-//        System.out.println(eList.size());
     }
 
     /**
@@ -226,6 +232,19 @@ public class G {
             for (RefV v : vsInRID)
                 v.replaceReferenceCluster(refV);
             queue.removeAll(vsInRID);
+        }
+    }
+
+    @SuppressWarnings("Duplicates")
+    public void updateClustersToStringMatches() {
+        Coder c = new Phonet2();
+        Map<String, List<RefV>> phoneMap = getVs(V.Type.REFERENCE).stream().map(RefV.class::cast)
+                .collect(Collectors.groupingBy(v -> c.code(v.getVal())));
+        for (List<RefV> refVs : phoneMap.values()) {
+            RefV refV = refVs.remove(0);
+            for (RefV v : refVs) {
+                v.replaceReferenceCluster(refV);
+            }
         }
     }
 

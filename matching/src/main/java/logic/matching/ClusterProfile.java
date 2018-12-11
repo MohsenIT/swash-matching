@@ -41,10 +41,10 @@ public class ClusterProfile {
         this.entries.add(entry);
     }
 
-    public void addEntry(Entry entry, byte index) {
+    public void addEntry(Entry entry, Integer index) {
         entry.setOrder(index);
         this.entries.stream().filter(e -> e.getOrder() >= index).forEach(Entry::incOrder);
-        this.entries.add(index - 1, entry);
+        this.entries.add(index, entry);
     }
     //endregion
 
@@ -71,7 +71,7 @@ public class ClusterProfile {
                         MatchResult.Matched matched = new MatchResult.Matched(entry, tokenE, r.getKey());
                         if(!matched.isNonAbbrsMatchedInAbbrLevel() && !matched.isAbbrsMatchedInNonTokenLevel()) {
                             result.addMatchedEntries(matched);
-                            if (entry.getNamePart() == tokenE.getNamePart()) // If not, may be matched in upper level
+                            if (entry.getNamePart() == tokenE.getNamePart()) // If not, may be isMatched in upper level
                                 matchedEntriesToRemove.add(matched);
                         }
                     }));
@@ -85,17 +85,14 @@ public class ClusterProfile {
                 if(profEs != null && profEs.size() > 1) profEs.remove(me.getProfileEntry()); else profileMap.remove(me.getMatchedV());
             }
         }
-        result.setNotMatchedProfileEntries(profileMap.values().stream().flatMap(Collection::stream).collect(toList()));
-        result.setNotMatchedTokenEs(refMap.values().stream().flatMap(Collection::stream).collect(toList()));
-        result.setSortedTokenEs();
         return result;
     }
 
     public void merge(MatchResult matchResult) {
         matchResult.getNotMatchedTokenEs().stream().map(Entry::new).forEach(entry -> {
-            byte index = (byte) (matchResult.getMatchedEntries().stream()
+            Integer index = matchResult.getMatchedEntries().stream()
                     .filter(e -> e.getRefTokenE().getOrder() < entry.getOrder())
-                    .mapToInt(e -> e.getProfileEntry().getOrder()).max().orElse(0) + 1);
+                    .mapToInt(e -> e.getProfileEntry().getOrder()).max().orElse(0) + 1;
             addEntry(entry, index);
         });
 
@@ -103,7 +100,7 @@ public class ClusterProfile {
         matchResult.getMatchedEntries().stream().filter(MatchResult.Matched::isProfileAbbrAndRefNonAbbr)
                 .forEach(matched -> matched.setProfileEntry(new Entry(matched.getRefTokenE())));
 
-        // TODO: 27/08/2018 if matched on 2nd level?
+        // TODO: 27/08/2018 if isMatched on 2nd level?
     }
 
     /**
@@ -124,8 +121,7 @@ public class ClusterProfile {
             else {
                 Set<ElementV> vs = Collections.singleton(entry.getKey());
                 while (currentLevel++ < minLevel){
-                    E.Type eType = E.Type.getTypeByLevels(currentLevel-1, currentLevel);
-                    vs = vs.stream().flatMap(e -> e.getOutV(eType).stream()).map(ElementV.class::cast).collect(toSet());
+                    vs = vs.stream().flatMap(v -> v.getOutNextLevelV().stream()).map(ElementV.class::cast).collect(toSet());
                 }
                 for (ElementV v : vs) {
                     if(resultMap.containsKey(v))
@@ -153,7 +149,7 @@ public class ClusterProfile {
         private Boolean isAbbr;
         private Boolean isBeforeDot;
         private NamePart namePart;
-        private Byte order;
+        private Integer order;
         //endregion
 
         //region Getters & Setters
@@ -212,13 +208,13 @@ public class ClusterProfile {
         /**
          * Gets order of elementV in the profile name.
          *
-         * @return Byte value of order
+         * @return Integer value of order
          */
-        public Byte getOrder() {
+        public Integer getOrder() {
             return order;
         }
 
-        public void setOrder(Byte order) {
+        public void setOrder(Integer order) {
             this.order = order;
         }
 

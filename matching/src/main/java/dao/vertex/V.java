@@ -22,6 +22,7 @@ public class V {
         REFERENCE("REF", 0),
         TOKEN("TKN", 1),
         SIMILAR("SIM", 2),
+        NICKNAME("NCK", 2),
         ABBREVIATED("ABR", 3);
 
         //region Fields & Getters
@@ -44,7 +45,7 @@ public class V {
 
         public static boolean isElement(String type) {
             Type t = fromString(type);
-            return t == TOKEN || t == SIMILAR || t == ABBREVIATED;
+            return t.level > 0;
         }
 
         public static boolean isReference(String type) {
@@ -216,6 +217,19 @@ public class V {
      */
     public Set<V> getOutV(E.Type type) {
         return getOutE(type).stream().map(E::getOutV).collect(Collectors.toSet());
+    }
+
+    /**
+     * Gets OUT edges if next V is in the next level
+     *
+     * @return set of in vertices
+     */
+    public Set<V> getOutNextLevelV() {
+        Integer level = this.type.level;
+        List<E.Type> types = this.outE.keySet().stream().filter(e -> e.getOutLevel() == level + 1).collect(Collectors.toList());
+        if(types.size() == 0)
+            return Collections.emptySet();
+        return types.stream().flatMap(t -> getOutV(t).stream()).collect(Collectors.toSet());
     }
 
     /**

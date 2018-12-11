@@ -5,10 +5,10 @@ import dao.vertex.ElementV;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static dao.edge.TokenE.NamePart.FIRSTNAME;
 import static dao.edge.TokenE.NamePart.LASTNAME;
+import static dao.edge.TokenE.NamePart.MIDDLENAME;
 
 public class MatchResult{
 
@@ -16,8 +16,6 @@ public class MatchResult{
     private List<TokenE> sortedTokenEs;
     private ClusterProfile clusterProfile;
     private List<Matched> matchedEntries;
-    private List<ClusterProfile.Entry> notMatchedProfileEntries;
-    private List<TokenE> notMatchedTokenEs;
     //endregion
 
 
@@ -37,7 +35,7 @@ public class MatchResult{
     }
 
     /**
-     * Gets matched entries of cluster profile and the refV.
+     * Gets isMatched entries of cluster profile and the refV.
      *
      * @return List of {@code MatchResult.Matched}
      */
@@ -54,41 +52,27 @@ public class MatchResult{
     }
 
     /**
-     * Gets cluster profile entries that is not matched with RefV.
+     * Gets cluster profile entries that is not isMatched with RefV.
      *
      * @return List of {@code ClusterProfile.Entry}
      */
     public List<ClusterProfile.Entry> getNotMatchedProfileEntries() {
-        return notMatchedProfileEntries;
-    }
-
-    public void setNotMatchedProfileEntries(List<ClusterProfile.Entry> notMatchedProfileEntries) {
-        this.notMatchedProfileEntries = notMatchedProfileEntries;
-    }
-
-    public void addNotMatchedProfileEntries(ClusterProfile.Entry entry) {
-        this.notMatchedProfileEntries.add(entry);
+        return clusterProfile.entries.stream().filter(e -> matchedEntries.stream().noneMatch(m -> m.profileEntry.equals(e)))
+                .collect(Collectors.toList());
     }
 
     /**
-     * Gets RefV tokens that is not matched with cluster profile.
+     * Gets RefV tokenEs that is not isMatched with the cluster profile.
      *
-     * @return value of notMatchedTokenEs
+     * @return List of TokenEs that does not isMatched with profile entries.
      */
     public List<TokenE> getNotMatchedTokenEs() {
-        return notMatchedTokenEs;
-    }
-
-    public void setNotMatchedTokenEs(List<TokenE> notMatchedTokenEs) {
-        this.notMatchedTokenEs = notMatchedTokenEs;
-    }
-
-    public void addNotMatchedTokenEs(TokenE tokenE) {
-        this.notMatchedTokenEs.add(tokenE);
+        return sortedTokenEs.stream().filter(e -> matchedEntries.stream().noneMatch(m -> m.refTokenE.equals(e)))
+                .collect(Collectors.toList());
     }
 
     /**
-     * Gets all {@code TokenEs} in the matched refV sorted by token's order
+     * Gets all {@code TokenEs} in the isMatched refV sorted by token's order
      *
      * @return a List of TokenEs sorted by token's order
      */
@@ -96,47 +80,74 @@ public class MatchResult{
         return sortedTokenEs;
     }
 
-    public void setSortedTokenEs() {
-        sortedTokenEs = Stream.concat(notMatchedTokenEs.stream(), matchedEntries.stream().map(Matched::getRefTokenE))
-                .distinct().sorted(Comparator.comparing(TokenE::getOrder)).collect(Collectors.toList());
+    /**
+     * @param nameParts set name parts of {@code sortedTokenEs} according to the indices of {@code nameParts} array.
+     */
+    public void setTokenEsNamesPart(TokenE.NamePart[] nameParts) {
+        for (int i = 0, sortedTokenEsSize = sortedTokenEs.size(); i < sortedTokenEsSize; i++)
+            sortedTokenEs.get(i).setNamePart(nameParts[i]);
     }
 
-    public MatchResult shiftLeftNamesPart() {
-        TokenE lastMiddle = sortedTokenEs.stream().filter(TokenE::isMiddleName)
-                .reduce((first, second) -> second).orElse(null);
-        if(lastMiddle != null) {
-            sortedTokenEs.stream().filter(e -> e.getNamePart().getRank() > 3).forEach(TokenE::incNamePartRank);
-            lastMiddle.setNamePart(LASTNAME);
+    /**
+     * @return an array of {@code NamePart}s from tokenEs that Shifted to Left.
+     */
+    public TokenE.NamePart[] getShiftedLeftNameParts() {
+        TokenE.NamePart[] nameParts = new TokenE.NamePart[sortedTokenEs.size()];
+        boolean isShiftStarted = false;
+        for (int i = 0, sortedTokenEsSize = sortedTokenEs.size(); i < sortedTokenEsSize; i++) {
+            TokenE.NamePart part = sortedTokenEs.get(i).getNamePart();
+            if(part == MIDDLENAME && sortedTokenEs.get(i+1).getNamePart() == LASTNAME)
+                isShiftStarted = true;
+            nameParts[i] = isShiftStarted ? part.nextRankedNamePart() : part;
         }
-        return this;
+        return isShiftStarted? nameParts : null;
+    }
+
+    /**
+     * @return an array of {@code NamePart}s from tokenEs that Shifted to Right.
+     */
+    public TokenE.NamePart[] getShiftedRightNameParts() {
+        TokenE.NamePart[] nameParts = new TokenE.NamePart[sortedTokenEs.size()];
+        boolean isShiftStarted = false;
+        for (int i = sortedTokenEs.size() - 1; i >= 0; i--) {
+            TokenE.NamePart part = sortedTokenEs.get(i).getNamePart();
+            if(part == MIDDLENAME && sortedTokenEs.get(i-1).getNamePart() == FIRSTNAME)
+                isShiftStarted = true;
+            nameParts[i] = isShiftStarted ? part.previousRankedNamePart() : part;
+        }
+        return isShiftStarted? nameParts : null;
+    }
+    
+    /**
+     * @return an array of {@code NamePart}s from tokenEs that Shifted to Right.
+     */
+    public TokenE.NamePart[] getReversedFirstnameAndLastname() {
+        TokenE.NamePart[] nameParts = new TokenE.NamePart[sortedTokenEs.size()];
+        boolean hasLastname = false, hasFirstname = false;
+        for (int i = 0, sortedTokenEsSize = sortedTokenEs.size(); i < sortedTokenEsSize; i++) {
+            TokenE.NamePart part = sortedTokenEs.get(i).getNamePart();
+            if(part == LASTNAME){
+                nameParts[i] = FIRSTNAME;
+                hasLastname = true;
+            }
+            if(part == FIRSTNAME){
+                nameParts[i] = LASTNAME;
+                hasFirstname = true;
+            }
+        }
+        return hasLastname && hasFirstname? nameParts : null;
     }
     //endregion
 
 
     public MatchResult(ClusterProfile clusterProfile, List<TokenE> tokenEs) {
         this.clusterProfile = clusterProfile;
-        this.sortedTokenEs = tokenEs;
+        this.sortedTokenEs = tokenEs.stream().sorted(Comparator.comparing(TokenE::getOrder)).collect(Collectors.toList());
         matchedEntries = new ArrayList<>(3);
-        notMatchedProfileEntries = new ArrayList<>(2);
-        notMatchedTokenEs = new ArrayList<>(2);
     }
 
 
     //region Methods
-    /**
-     * Copy the current object by reference instead refTokenE that create new object from it.
-     * This method in check NamePart change in order to the original object did not affect.
-     *
-     * @return a new MatchResult object
-     */
-    public MatchResult copyWithNewTokenEs() {
-        MatchResult result = new MatchResult(this.getClusterProfile(), this.sortedTokenEs);
-        result.setNotMatchedProfileEntries(this.notMatchedProfileEntries);
-        result.setMatchedEntries(this.matchedEntries.stream().map(Matched::copyWithNewTokenE).collect(Collectors.toList()));
-        result.setNotMatchedTokenEs(this.notMatchedTokenEs.stream().map(TokenE::clone).collect(Collectors.toList()));
-        result.setSortedTokenEs();
-        return result;
-    }
 
     /**
      * check if the result shows that according to this result, the refV is consistent with profile or not?
@@ -144,23 +155,34 @@ public class MatchResult{
      * @return a boolean that is false if not consistent and true otherwise.
      */
     public boolean isConsistent() {
-        for (ClusterProfile.Entry profileEntry : clusterProfile.getEntries()) {
+        return isConsistent(this.sortedTokenEs.stream().map(TokenE::getNamePart).toArray(TokenE.NamePart[]::new));
+    }
 
-            Matched matched = matchedEntries.stream().filter(e -> e.profileEntry == profileEntry) // sort in order that if a namePart matches with multiple tokens, it consider the one that has the same namePart
-                    .sorted(Comparator.comparing(e -> e.profileEntry.getNamePart() != e.refTokenE.getNamePart())).findFirst().orElse(null);
+    /**
+     * check if the result shows that according to this result, the refV is consistent with profile or not?
+     *
+     * @return a boolean that is false if not consistent and true otherwise.
+     */
+    public boolean isConsistent(TokenE.NamePart[] parts) {
+        for (ClusterProfile.Entry profileEntry : clusterProfile.getEntries()) {
+            Matched matched = matchedEntries.stream().filter(e -> e.profileEntry == profileEntry)
+                    .sorted(Comparator.comparing((Matched m) -> m.matchedV.getLevel()) // 1) isMatched in lower level is prior
+                            // 2) if a namePart matches with multiple tokens, it consider the one that has the same namePart
+                            .thenComparing((Matched e) -> e.profileEntry.getNamePart() != parts[e.refTokenE.getOrder()])
+                    ).findFirst().orElse(null);
             if(matched == null) {
                 if(profileEntry.getNamePart() == LASTNAME || profileEntry.getNamePart() == FIRSTNAME)
                     return false;
-                if (notMatchedTokenEs.stream().filter(e -> e.getNamePart() == profileEntry.getNamePart()).count() > 0)
-                    return false; // if refV has any token with the same name's part, it must be matched.
-            } else if(matched.hasEqualNamePart()){
+                if (getNotMatchedTokenEs().stream().filter(e -> parts[e.getOrder()] == profileEntry.getNamePart()).count() > 0)
+                    return false; // if refV has any token with the same name's part, it must be isMatched.
+            } else if(matched.hasEqualNamePart(parts)){
                 if(profileEntry.getNamePart() == LASTNAME){
                     if(matched.getMatchedV().getLevel() > 2) return false;
-                } else { // TODO: 26/08/2018 it is possible that two middle name is matched that one is abbr and other not
-                    if(matched.isNonAbbrsMatchedInAbbrLevel()) return false;
+                } else { // TODO: 26/08/2018 it is possible that two middle name is isMatched that one is abbr and other not
+                    if(matched.isNonAbbrsMatchedInAbbrLevel())
+                        return false;
                 }
             } else {
-                // TODO: 26/08/2018 check if fname and lname is reversed or not?
                 // TODO: 07/08/2018 update token types if increase consensus and cluster again
                 if(profileEntry.getNamePart() == LASTNAME || profileEntry.getNamePart() == FIRSTNAME)
                     return false;
@@ -170,10 +192,25 @@ public class MatchResult{
     }
 
     public boolean canBecomeConsistent() {
-        MatchResult r = copyWithNewTokenEs().shiftLeftNamesPart();
-        if(r.isConsistent())
-            this.shiftLeftNamesPart();
-        return true;
+        TokenE.NamePart[] shiftedLeftNameParts = this.getShiftedLeftNameParts();
+        boolean isConsistent = shiftedLeftNameParts != null && this.isConsistent(shiftedLeftNameParts);
+        if (isConsistent) {
+            this.setTokenEsNamesPart(shiftedLeftNameParts);
+            return true;
+        }
+//        TokenE.NamePart[] shiftedRightNameParts = this.getShiftedRightNameParts();
+//        isConsistent = shiftedRightNameParts != null && this.isConsistent(shiftedRightNameParts);
+//        if (isConsistent) {
+//            this.setTokenEsNamesPart(shiftedRightNameParts);
+//            return true;
+//        }
+        TokenE.NamePart[] reversed = this.getReversedFirstnameAndLastname();
+        isConsistent = reversed != null && this.isConsistent(reversed);
+        if (isConsistent) {
+            this.setTokenEsNamesPart(reversed);
+            return true;
+        }
+        return false;
     }
 
     //endregion
@@ -187,7 +224,7 @@ public class MatchResult{
 
         //region Getters & Setters
         /**
-         * Gets th Cluster Profile Entry that matched
+         * Gets th Cluster Profile Entry that isMatched
          *
          * @return value of {@code ClusterProfile.Entry}
          */
@@ -200,9 +237,9 @@ public class MatchResult{
         }
 
         /**
-         * Gets reference tokens that matched with profile entry.
+         * Gets reference tokens that isMatched with profile entry.
          *
-         * @return matched {@code TokenE}
+         * @return isMatched {@code TokenE}
          */
         public TokenE getRefTokenE() {
             return refTokenE;
@@ -213,9 +250,9 @@ public class MatchResult{
         }
 
         /**
-         * Gets ancestor {@code ElementV} that the profile and reference token matched in it.
+         * Gets ancestor {@code ElementV} that the profile and reference token isMatched in it.
          *
-         * @return value of matched {@code ElementV}
+         * @return value of isMatched {@code ElementV}
          */
         public ElementV getMatchedV() {
             return matchedV;
@@ -240,27 +277,23 @@ public class MatchResult{
             this.refTokenE = refTokenE;
         }
 
-        /**
-         * Copy the current object by reference instead refTokenE that create new object from it
-         *
-         * @return a new Matched object
-         */
-        public Matched copyWithNewTokenE(){
-            return new Matched(this.profileEntry, this.refTokenE.clone(), this.matchedV);
-        }
 
-        public boolean hasEqualNamePart() {
-            return profileEntry != null && refTokenE != null
-                    && profileEntry.getNamePart() != null && refTokenE.getNamePart() != null
-                    && profileEntry.getNamePart() == refTokenE.getNamePart();
+        /**
+         * @param parts array of NamePart that should be used as NamePart of {@code refTokenE}
+         * @return true if {@code profileEntry} and {@code refTokenE} has equal name parts.
+         */
+        public boolean hasEqualNamePart(TokenE.NamePart[] parts) {
+            return profileEntry != null && refTokenE != null &&
+                    profileEntry.getNamePart() != null && refTokenE.getOrder() != null && parts.length > refTokenE.getOrder() &&
+                    profileEntry.getNamePart() == parts[refTokenE.getOrder()];
         }
 
         /**
          * If a reference token and a clusterProfile entry are both Non-Abbreviated,
-         * they should be matched in first level (token as is) or at second level (similar tokens).
+         * they should be isMatched in first level (token as is) or at second level (similar tokens).
          *
          * @return a boolean that Is the reference token and clusterProfile entry
-         * are both non-abbreviated and matched in abbreviated level?
+         * are both non-abbreviated and isMatched in abbreviated level?
          */
         public boolean isNonAbbrsMatchedInAbbrLevel() {
             if(matchedV == null || refTokenE == null || profileEntry == null) return false;
@@ -270,10 +303,10 @@ public class MatchResult{
 
         /**
          * If a reference token and a clusterProfile entry are both Abbreviated,
-         * they should be matched in first level (token as is).
+         * they should be isMatched in first level (token as is).
          *
          * @return a boolean that Is the reference token and clusterProfile entry
-         * are both abbreviated and is not matched in token level?
+         * are both abbreviated and is not isMatched in token level?
          */
         public boolean isAbbrsMatchedInNonTokenLevel() {
             if(matchedV == null || refTokenE == null || profileEntry == null) return false;
@@ -281,7 +314,7 @@ public class MatchResult{
         }
 
         /**
-         * Check if profile entry is abbreviated, while matched refV tokenE's is not?
+         * Check if profile entry is abbreviated, while isMatched refV tokenE's is not?
          *
          * @return a boolean value, {@code true} if the above condition exist and {@code false} otherwise
          */

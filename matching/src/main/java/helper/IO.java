@@ -1,6 +1,7 @@
 package helper;
 
 import com.koloboke.collect.set.hash.HashObjSets;
+import dao.G;
 import dao.edge.E;
 import dao.vertex.RefV;
 import dao.vertex.V;
@@ -27,12 +28,16 @@ public class IO {
         return null;
     }
 
-    public static void writeSimilarityGraph(Map<RefV, List<MessagePassing.Candidate>> candidates, String outPath) throws IOException {
-        Set<V> Vertices = HashObjSets.newMutableSet();
+    public static void writeSimilarityGraph(Map<RefV, List<MessagePassing.Candidate>> candidates, String outPath, Boolean hasAllVs, G g) throws IOException {
         List<MessagePassing.Candidate> candidateList = candidates.values().stream()
                 .flatMap(Collection::stream).collect(Collectors.toList());
-        Vertices.addAll(candidateList.stream().map(MessagePassing.Candidate::getOriginRefV).collect(Collectors.toList()));
-        Vertices.addAll(candidateList.stream().map(MessagePassing.Candidate::getDestRefV).collect(Collectors.toList()));
+        Set<V> Vertices = HashObjSets.newMutableSet();
+        if(hasAllVs){
+            Vertices.addAll(g.getVs(V.Type.REFERENCE));
+        } else {
+            Vertices.addAll(candidateList.stream().map(MessagePassing.Candidate::getOriginRefV).collect(Collectors.toList()));
+            Vertices.addAll(candidateList.stream().map(MessagePassing.Candidate::getDestRefV).collect(Collectors.toList()));
+        }
 
         StringBuilder vCsvRows = new StringBuilder();
         vCsvRows.append(String.format("Id%1$s Label%1$s Weight%1$s Res_Id\r\n", CSV_DELIMITER));

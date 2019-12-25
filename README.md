@@ -16,4 +16,4 @@ Swash framework consists of two major phases:
 
 We implement the _data modeling phase_ using R language, which is publicly available on: https://github.com/MohsenIT/swash-data-modeling .
 
-The _matching phase_ is implemented with Java, and it is available in [the current repository](https://github.com/MohsenIT/swash-matching).
+The _matching phase_ is implemented with Java, and it is available in [the current repository](https://github.com/MohsenIT/swash-matching | width=100).

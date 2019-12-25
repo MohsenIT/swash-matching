@@ -1,0 +1,27 @@
+each ref 1 cluster	F1=0.654616, Precision=1.000000, Recall=0.486564
+
+
+arXiv_2common_tokens_relsim>0.5 ====================================
+connected component	F1=0.760237, Precision=0.908133, Recall=0.653766 
+louvian				F1=0.760237, Precision=0.908133, Recall=0.653766
+infomap				F1=0.769427, Precision=0.934890, Recall=0.653726
+our method			F1=0.786598, Precision=0.996132, Recall=0.649895
+upper bound			F1=0.789699, Precision=0.995297, Recall=0.654500
+
+arXiv_1common_token_relsim>0.5 =====================================
+connected component	F1=0.003077, Precision=0.001541, Recall=0.941987 
+louvian				F1=0.081474, Precision=0.042582, Recall=0.940129
+infomap				F1=0.580742, Precision=0.421628, Recall=0.932743
+our method			F1=0.952317, Precision=0.979798, Recall=0.926336
+upper bound			F1=0.993878, Precision=0.994594, Recall=0.993164
+
+arXiv_1common_token_all_similarity =================================
+louvian				F1=0.084048, Precision=0.043989, Recall=0.940517
+connected component	F1=0.003077, Precision=0.001541, Recall=0.941987 
+infomap				F1=0.575675, Precision=0.416470, Recall=0.931923
+our method			F1=0.952317, Precision=0.979798, Recall=0.926336
+upper bound			F1=0.993878, Precision=0.994594, Recall=0.993164
+
+
+
+

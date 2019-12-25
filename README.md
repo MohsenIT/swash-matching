@@ -12,8 +12,13 @@ Swash framework consists of two major phases:
 1. _Data modeling_: Names are transformed into a rich HIN (Heterogeneous Information Network).
 2. _Matching_: This phase alternates between the blocking stage, which finds possible candidate names, and clustering stage, which clusters the candidates.
 
-![The general process of Swash name matching framework](matching/src/main/resources/swash_phases.PNG)
+<p align="center">
+  <img src="matching/src/main/resources/swash_phases.PNG" height="120">
+</p>
+<p align="center">
+  <em>The general process of Swash name matching framework</em>
+</p>
 
 We implement the _data modeling phase_ using R language, which is publicly available on: https://github.com/MohsenIT/swash-data-modeling .
 
-The _matching phase_ is implemented with Java, and it is available in [the current repository](https://github.com/MohsenIT/swash-matching | width=100).
+The _matching phase_ is implemented with Java, and it is available in [the current repository](https://github.com/MohsenIT/swash-matching).

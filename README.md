@@ -21,7 +21,7 @@ Swash framework consists of two major phases:
 
 ## Research
 
-Research on Swash framework was published in _Expert system with Applications_ journal ([link](https://www.sciencedirect.com/science/article/pii/S0957417419308322)). To evaluate the framework, we utilized three datasets, which are publicly available on [this link](https://github.com/MohsenIT/swash-data-modeling/new/master/data).
+Research on Swash framework was published in _Expert system with Applications_ journal ([link](https://www.sciencedirect.com/science/article/pii/S0957417419308322)). To evaluate the framework, we utilized three datasets, which are publicly available on [this link](https://github.com/MohsenIT/swash-data-modeling/tree/master/data).
 
 
 

@@ -1,4 +1,4 @@
-#Swash: A Collective Personal Name Matching Framework
+# Swash: A Collective Personal Name Matching Framework
 
 Swash is a personal name matching framework which inspired by the human thinking. Swash has several main features:
 * **Collective**: Instead pairwise matching, it utilizes information available in whole data and matching decisions dependent on each other. 
@@ -14,5 +14,6 @@ Swash framework consists of two major phases:
 
 ![The general process of Swash name matching framework](matching/src/main/resources/swash_phases.PNG)
 
-We implement the _data modeling phase_ using R language, which is publicly available on: https://github.com/MohsenIT/swash-data-modeling
+We implement the _data modeling phase_ using R language, which is publicly available on: https://github.com/MohsenIT/swash-data-modeling .
+
 The _matching phase_ is implemented with Java, and it is available in [the current repository](https://github.com/MohsenIT/swash-matching).

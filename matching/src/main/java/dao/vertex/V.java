@@ -226,7 +226,8 @@ public class V {
      */
     public Set<V> getOutNextLevelV() {
         Integer level = this.type.level;
-        List<E.Type> types = this.outE.keySet().stream().filter(e -> e.getOutLevel() == level + 1).collect(Collectors.toList());
+        List<E.Type> types = this.outE.keySet().stream()
+                .filter(e -> e.getOutLevel() == level + 1).collect(Collectors.toList());
         if(types.size() == 0)
             return Collections.emptySet();
         return types.stream().flatMap(t -> getOutV(t).stream()).collect(Collectors.toSet());

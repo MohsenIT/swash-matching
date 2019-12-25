@@ -77,33 +77,33 @@ public class MessagePassing {
         return this;
     }
 
-    public Map<RefV, List<Candidate>> aggRefVsTerminal(int minCommonMessages) {
+    public Map<RefV, List<Candidate>> aggRefVsTerminal(int commonMsgTh, float relSimTh) {
         Map<RefV, Map<RefV, List<Message>>> result = currentPosition.keySet().stream()
                 .collect(Collectors.groupingBy(Message::getDestRefV,
                         Collectors.groupingBy(Message::getOriginRefV)));
 
         Map<RefV, List<Candidate>> strongMap = HashObjObjMaps.newMutableMap();
         for (Map.Entry<RefV, Map<RefV, List<Message>>> dst: result.entrySet()) {
-            Double simThreshold = getSimilarityThreshold(dst);
+            Double simThreshold = getSimilarityThreshold(dst, relSimTh);
             List<Candidate> candidateList = new ArrayList<>();
 
             for (Map.Entry<RefV, List<Message>> org: dst.getValue().entrySet()) {
                 Candidate can = new Candidate(dst.getKey(), org.getKey(), org.getValue());
-                if(can.sumSimilarity >= simThreshold && can.messageList.size() >= minCommonMessages)
+                if(can.sumSimilarity >= simThreshold && can.messageList.size() >= commonMsgTh)
                     candidateList.add(can);
             }
             if(candidateList.size() > 1)
-                strongMap.put((RefV)dst.getKey(), candidateList.stream()
+                strongMap.put(dst.getKey(), candidateList.stream()
                         .sorted(Comparator.comparing(Candidate::getSumSimilarity, Comparator.reverseOrder()))
                         .collect(Collectors.toList()));
         }
         return strongMap;
     }
 
-    private Double getSimilarityThreshold(Map.Entry<RefV, Map<RefV, List<Message>>> messagesReceivedToRefV) {
+    private Double getSimilarityThreshold(Map.Entry<RefV, Map<RefV, List<Message>>> messagesReceivedToRefV, float relativeSimTh) {
         Double selfSim = messagesReceivedToRefV.getValue().get(messagesReceivedToRefV.getKey())
                 .stream().mapToDouble(Message::getSimilarity).sum();
-        return Candidate.SIM_PROPORTION_THRESHOLD * selfSim;
+        return relativeSimTh * selfSim;
     }
     //endregion
 
@@ -115,7 +115,7 @@ public class MessagePassing {
      * @param candidates Map of Candidate Collections
      * @return Collection of {@link com.google.common.graph.ImmutableValueGraph}s
      */
-    public Collection<ImmutableValueGraph<Long, Double>> connectedCandidatesGuavaGraphs(Map<V, List<Candidate>> candidates) {
+    public Collection<ImmutableValueGraph<Long, Double>> connectedCandidatesGuavaGraphs(Map<RefV, List<Candidate>> candidates) {
         MutableValueGraph<Long, Float> graph = ValueGraphBuilder.directed().build();
         candidates.values().stream().flatMap(Collection::stream).forEach(c -> {
             if(c.getDestRefV() != c.getOriginRefV())
@@ -131,10 +131,10 @@ public class MessagePassing {
      * @param componentGraphs Collection of {@link com.google.common.graph.ImmutableValueGraph}s
      * @return Map of representative V (currently most frequent) to connected components Vs
      */
-    public Map<V, Collection<V>> graphsToClusters(Collection<ImmutableValueGraph<Long, Double>> componentGraphs) {
-        Map<V, Collection<V>> components = HashObjObjMaps.newMutableMap();
+    public Map<RefV, Collection<RefV>> graphsToClusters(Collection<ImmutableValueGraph<Long, Double>> componentGraphs) {
+        Map<RefV, Collection<RefV>> components = HashObjObjMaps.newMutableMap();
         for (ImmutableValueGraph<Long, Double> componentGraph : componentGraphs) {
-            List<V> componentVs = componentGraph.nodes().stream().map(g::getV).collect(Collectors.toList());
+            List<RefV> componentVs = componentGraph.nodes().stream().map(id -> (RefV)g.getV(id)).collect(Collectors.toList());
             components.put(componentVs.stream().max(Comparator.comparing(V::getWeight)).get(), componentVs);
         }
         return components;
@@ -147,7 +147,7 @@ public class MessagePassing {
      * @return Map of representative V (currently most frequent) to connected components Vs
      */
     @SuppressWarnings("Duplicates")
-    public void greedyClustering(Map<RefV, List<Candidate>> candidates) throws FileNotFoundException, UnsupportedEncodingException {
+    public void clusterCandidates(Map<RefV, List<Candidate>> candidates) throws FileNotFoundException, UnsupportedEncodingException {
         // add similarity edges between tokens (REF_REF edges)
         candidates.values().stream().flatMap(Collection::stream).forEach(c -> {
             if(c.getDestRefV() != c.getOriginRefV())
@@ -155,7 +155,9 @@ public class MessagePassing {
         });
 
         // collect REFs and prioritize them
-        List<RefV> sortedVs = g.getVs(V.Type.REFERENCE).stream().map(v -> (RefV)v)
+        List<V> refVs = new ArrayList<>(g.getVs(V.Type.REFERENCE));
+        Collections.shuffle(refVs, new Random());
+        List<RefV> sortedVs = refVs.stream().map(v -> (RefV)v)
                 .filter(v -> v.hasInOutE(E.Type.REF_REF)).sorted(
                         Comparator.comparing((RefV v) -> v.getOutE(E.Type.REF_TKN).size())
                                 .thenComparing(t -> t.getOutE(E.Type.REF_TKN).stream().filter(e -> ((TokenE)e).getIsAbbr()).count())
@@ -166,6 +168,7 @@ public class MessagePassing {
         Map<RefV, Boolean> refsToNotVisited = sortedVs.stream().collect(Collectors.toMap(Function.identity(), x -> true, (a,b)->a, LinkedHashMap::new));
         PrintWriter fpWriter = new PrintWriter("D:\\University\\PHDResearch\\Dev\\FP.tsv", "UTF-8");
         PrintWriter fnWriter = new PrintWriter("D:\\University\\PHDResearch\\Dev\\FN.tsv", "UTF-8");
+        int all =0, in = 0, inAndChange = 0, inAndChangeAndTP = 0;
         for (RefV v : refsToNotVisited.keySet()) {
             if (!refsToNotVisited.get(v))
                 continue;
@@ -174,25 +177,28 @@ public class MessagePassing {
             ClusterProfile clusterProfile = v.getRefClusterV().getProfile();
             while (!queue.isEmpty()) {
                 RefV u = queue.remove();
-                u.getInOutV(E.Type.REF_REF).stream().map(e -> (RefV)e)
-                        .filter(refsToNotVisited::get).forEach((RefV adj) -> {
+                List<RefV> adjacentList = u.getInOutV(E.Type.REF_REF).stream().map(e -> (RefV) e).filter(refsToNotVisited::get).collect(Collectors.toList());
+                for (RefV adj : adjacentList) {
                     MatchResult result = clusterProfile.match(adj);
                     boolean isConsistent = result.isConsistent();
-                    if(!isConsistent){
+                    all++;
+                    if (!isConsistent) {
                         isConsistent = result.canBecomeConsistent();
+                        in++;
+                        if(isConsistent)inAndChange++;
+                        //if(isConsistent && u.getRefResolvedId().equals(adj.getRefResolvedId()))inAndChangeAndTP++;
                     }
-                    if(isConsistent) {
+                    if (isConsistent) {
                         queue.add(adj);
                         refsToNotVisited.put(adj, false);
                         adj.replaceReferenceCluster(u);
                         clusterProfile.merge(result);
                     }
-
 //                    if(isConsistent && u.getRefResolvedIdV() != adj.getRefResolvedIdV())
 //                        fpWriter.printf("%s\t%s\t%s%n", u.getVal(), adj.getVal(), clusterProfile);
 //                    else if(!isConsistent && u.getRefResolvedIdV() == adj.getRefResolvedIdV())
-//                        fnWriter.printf("%s\t%s\t%s%n", u.getVal(), adj.getVal(), clusterProfile);
-                });
+//                        fnWriter.printf("%s\t%s\t%s%n", u.getVal(), adj.getVal(), clusterProfile);}
+                }
             }
         }
         fnWriter.close(); fpWriter.close();
@@ -307,7 +313,6 @@ public class MessagePassing {
 
     public class Candidate {
 
-        public static final float SIM_PROPORTION_THRESHOLD = 0.5f;
         public static final int MIN_COMMON_TOKENS_THRESHOLD = 2;
 
         //region Fields
@@ -353,6 +358,10 @@ public class MessagePassing {
          */
         public Float getSumSimilarity() {
             return sumSimilarity;
+        }
+
+        public void setSumSimilarity(Float sumSimilarity) {
+            this.sumSimilarity = sumSimilarity;
         }
 
         /**

@@ -80,7 +80,7 @@ public class PairwiseFMeasure {
 
     @Override
     public String toString() {
-        return String.format("PairwiseFMeasure measures{F1=%s, Precision=%s, pairwiseRecall=%s}"
+        return String.format("PairwiseFMeasure measures{F1=%s, Precision=%s, Recall=%s}"
                 , getPairwiseF1(), pairwisePrecision, pairwiseRecall);
     }
 }

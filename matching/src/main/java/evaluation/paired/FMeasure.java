@@ -1,13 +1,10 @@
 package evaluation.paired;
 
 import dao.G;
-import dao.edge.E;
 import dao.vertex.RefV;
 import dao.vertex.V;
 import helper.IO;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -103,8 +100,8 @@ public class FMeasure {
         }
 
         public long getIncValue() {
-            return 1;
-            //return refV1.getWeight() * refV2.getWeight();
+//            return 1;
+            return refV1.getWeight() * refV2.getWeight();
         }
 
         public GoldPairs(String[] elements) {

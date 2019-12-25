@@ -13,8 +13,12 @@ import de.zedlitz.phonet4java.Coder;
 import de.zedlitz.phonet4java.Phonet2;
 import de.zedlitz.phonet4java.Soundex;
 import de.zedlitz.phonet4java.SoundexRefined;
+import evaluation.paired.FMeasure;
 import helper.IO;
+import logic.matching.ClusterProfile;
+import logic.matching.MatchResult;
 
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -50,7 +54,7 @@ public class G {
      * @return Set of graph vertices
      */
     public Set<V> getVs(V.Type type) {
-        return vs.values().stream().filter(v -> v.getType()==type).collect(Collectors.toSet());
+        return vs.values().stream().filter(v -> v.getType() == type).collect(Collectors.toSet());
     }
 
     /**
@@ -77,9 +81,6 @@ public class G {
     }
 
 
-
-
-
     /**
      * Gets all edges of the Graph.
      *
@@ -96,10 +97,11 @@ public class G {
     /**
      * Add an edge to the Graph.
      *
-     * @param inV from vertex of edge
-     * @param outV to vertex of edge
-     * @param type type of edge
-     * @param weight weight of edge    */
+     * @param inV    from vertex of edge
+     * @param outV   to vertex of edge
+     * @param type   type of edge
+     * @param weight weight of edge
+     */
     public void addE(V inV, V outV, E.Type type, Float weight) {
         E e = new E(inV, outV, type, weight);
         this.es.add(e);
@@ -110,7 +112,8 @@ public class G {
     /**
      * Add an edge to the Graph Edges.
      *
-     * @param e from vertex of edge    */
+     * @param e from vertex of edge
+     */
     public void addE(E e) {
         this.es.add(e);
     }
@@ -121,7 +124,7 @@ public class G {
      * Generate graph using vertices and edges adjacency list file
      *
      * @param vertexFilePath csv file contains vertices fields
-     * @param edgeFilePath csv file that store edges fields
+     * @param edgeFilePath   csv file that store edges fields
      */
     public void init(String vertexFilePath, String edgeFilePath) {
         List<String[]> vertices = IO.readCSVLines(vertexFilePath);
@@ -156,7 +159,6 @@ public class G {
     /**
      * Assign a cluster vertex to each REFERENCE vertices.
      * The clusters change during resolution.
-     *
      */
     public void initClusters() {
         long maxId = vs.keySet().stream().mapToLong(Long::longValue).max().orElse(1);
@@ -194,9 +196,9 @@ public class G {
                 fname.setNamePart(NamePart.FIRSTNAME);
                 tokenEs.remove(fname);
                 for (TokenE e : tokenEs) {
-                    if(e.getOrder() > lname.getOrder())
+                    if (e.getOrder() > lname.getOrder())
                         e.setNamePart(NamePart.SUFFIX);
-                    else if(e.getOrder() > fname.getOrder() && e.getOrder() < lname.getOrder())
+                    else if (e.getOrder() > fname.getOrder() && e.getOrder() < lname.getOrder())
                         e.setNamePart(NamePart.MIDDLENAME);
                     else e.setNamePart(NamePart.PREFIX);
                 }
@@ -213,7 +215,7 @@ public class G {
      */
     public void updateClusters(Map<RefV, Collection<RefV>> clusters) {
         for (Map.Entry<RefV, Collection<RefV>> cluster : clusters.entrySet()) {
-           for (RefV v : cluster.getValue())
+            for (RefV v : cluster.getValue())
                 v.replaceReferenceCluster(cluster.getKey());
         }
     }
@@ -235,7 +237,72 @@ public class G {
         }
     }
 
+    /**
+     * update cluster edges according to the their actual resolved_id to calculate max achievable F1.
+     *
+     * @param g whole graph
+     */
     @SuppressWarnings("Duplicates")
+    public void updateToMaxAchievableRecall(G g) {
+        List<RefV> refVs = g.getVs(V.Type.REFERENCE).stream().map(RefV.class::cast).collect(toList());
+        Map<RefV, Boolean> refsToNotVisited = refVs.stream().collect(Collectors.toMap(Function.identity(), x -> true, (a, b) -> a, LinkedHashMap::new));
+        for (RefV v : refsToNotVisited.keySet()) {
+            if (!refsToNotVisited.get(v))
+                continue;
+            Queue<RefV> queue = new LinkedList<>(Collections.singletonList(v));
+            refsToNotVisited.put(v, false);
+            while (!queue.isEmpty()) {
+                RefV u = queue.remove();
+                V resIdV = u.getRefResolvedIdV();
+                List<RefV> coResAdjs = u.getInOutV(E.Type.REF_REF).stream().map(e -> (RefV) e)
+                        .filter(r -> refsToNotVisited.get(r) && r.getRefResolvedIdV().equals(resIdV)).collect(toList());
+                for (RefV adj : coResAdjs) {
+                    queue.add(adj);
+                    refsToNotVisited.put(adj, false);
+                    adj.replaceReferenceCluster(v);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * update cluster edges according to the their actual resolved_id to calculate max achievable F1.
+     *
+     * @param g whole graph
+     * @param goldPairsFilePath
+     */
+    @SuppressWarnings("Duplicates")
+    public void updateToMaxAchievableRecallPairwise(G g, String goldPairsFilePath) {
+        List<RefV> refVs = g.getVs(V.Type.REFERENCE).stream().map(RefV.class::cast).collect(toList());
+        int a = 0, all = 0;
+        List<String[]> goldPairs = IO.readCSVLines(goldPairsFilePath).stream().skip(1).collect(toList());
+        for (String[] gold : goldPairs) {
+            all++;
+            RefV s = (RefV) g.getV(Long.valueOf(gold[0]));
+            RefV t = (RefV) g.getV(Long.valueOf(gold[1]));
+            Map<RefV, Boolean> refsToNotVisited = refVs.stream().collect(Collectors.toMap(Function.identity(), x -> true));
+
+            Queue<RefV> queue = new LinkedList<>(Collections.singletonList(s));
+            refsToNotVisited.put(s, false);
+            while (!queue.isEmpty()) {
+                RefV u = queue.remove();
+                List<RefV> coResAdjs = u.getInOutV(E.Type.REF_REF).stream().map(RefV.class::cast).filter(refsToNotVisited::get).collect(toList());
+                for (RefV adj : coResAdjs) {
+                    if(adj.equals(t)){
+                        t.replaceReferenceCluster(s);
+                        a++;
+                        while(!queue.isEmpty())queue.remove();
+                        break;
+                    }
+                    queue.add(adj);
+                    refsToNotVisited.put(adj, false);
+                }
+            }
+        }
+        System.out.println(a);
+    }
+
     public void updateClustersToStringMatches() {
         Coder c = new Phonet2();
         Map<String, List<RefV>> phoneMap = getVs(V.Type.REFERENCE).stream().map(RefV.class::cast)
@@ -254,9 +321,9 @@ public class G {
      * @param maxUpdateLevel max level to update cluster count in the graph
      *                       note that level 0 is REF type, 1 is TKN type , and etc.
      */
-    public void updateAncestorClusterCnt(Integer maxUpdateLevel){
+    public void updateAncestorClusterCnt(Integer maxUpdateLevel) {
         checkNotNull(maxUpdateLevel);
-        checkArgument(maxUpdateLevel>=1 && maxUpdateLevel <=3, "maxUpdateLevel must be between [1, 3].");
+        checkArgument(maxUpdateLevel >= 1 && maxUpdateLevel <= 3, "maxUpdateLevel must be between [1, 3].");
         List<ElementV> elementVs = vs.values().stream()
                 .filter(v -> v.getLevel() > 0 && v.getLevel() <= maxUpdateLevel)
                 .map(ElementV.class::cast)
@@ -266,17 +333,17 @@ public class G {
             int clusterCnt = v.getInE().entrySet().stream()
                     .filter(t -> t.getKey().isInterLevel())
                     .flatMapToInt(e -> e.getValue().stream()
-                            .mapToInt(x -> x.getInV() instanceof RefV ? 1 : ((ElementV)x.getInV()).getClusterCount())
+                            .mapToInt(x -> x.getInV() instanceof RefV ? 1 : ((ElementV) x.getInV()).getClusterCount())
                     ).sum();
             v.setClusterCount(clusterCnt);
         }
         System.out.printf("\tClusterCount property of every vertex of level>0 is updated up to level %d.\r\n", maxUpdateLevel);
     }
 
-     /**
+    /**
      * update the clusterCnt field of all vertices with max of possible levels (SIMILAR).
      */
-    public void updateAncestorClusterCnt(){
+    public void updateAncestorClusterCnt() {
         updateAncestorClusterCnt(V.Type.maxLevel);
     }
 

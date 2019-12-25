@@ -63,12 +63,12 @@ public class RefV extends V {
     }
 
     /**
-     * replace CLUSTER vertex of a this REFERENCE vertex by {@code clusterV} of {@code refV} parameter.
+     * replace CLUSTER vertex of a this REFERENCE vertex by {@code clusterV} of {@code targetV} parameter.
      *
-     * @param refV reference vertex that its cluster should be replaced by old one.
+     * @param targetV reference vertex that its cluster should be replaced by old one.
      */
-    public void replaceReferenceCluster(RefV refV) {
-        replaceReferenceCluster(refV.getRefClusterV());
+    public void replaceReferenceCluster(RefV targetV) {
+        replaceReferenceCluster(targetV.getRefClusterV());
     }
 
     /**

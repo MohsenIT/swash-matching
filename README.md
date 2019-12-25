@@ -9,8 +9,8 @@ Swash is a personal name matching framework which inspired by the human thinking
 
 ## Matching Process
 Swash framework consists of two major phases: 
-1. _Data modeling_: Names are transformed into a rich HIN (Heterogeneous Information Network).
-2. _Matching_: This phase alternates between the blocking stage, which finds possible candidate names, and clustering stage, which clusters the candidates.
+1. **Data modeling**: Names are transformed into a rich HIN (Heterogeneous Information Network). This phase is implemented using R language, which is publicly available on: https://github.com/MohsenIT/swash-data-modeling .
+2. **Matching**: This phase alternates between the blocking stage, which finds possible candidate names, and clustering stage, which clusters the candidates. This phase is implemented with Java, and it is available in [the current repository](https://github.com/MohsenIT/swash-matching).
 
 <p align="center">
   <img src="matching/src/main/resources/swash_phases.PNG" height="120">
@@ -19,6 +19,9 @@ Swash framework consists of two major phases:
   <em>The general process of Swash name matching framework</em>
 </p>
 
-We implement the _data modeling phase_ using R language, which is publicly available on: https://github.com/MohsenIT/swash-data-modeling .
+## Research
 
-The _matching phase_ is implemented with Java, and it is available in [the current repository](https://github.com/MohsenIT/swash-matching).
+Research on Swash framework was published in _Expert system with Applications_ journal ([link](https://www.sciencedirect.com/science/article/pii/S0957417419308322)). To evaluate the framework, we utilized three datasets, which are publicly available on [this link](https://github.com/MohsenIT/swash-data-modeling/new/master/data).
+
+
+
